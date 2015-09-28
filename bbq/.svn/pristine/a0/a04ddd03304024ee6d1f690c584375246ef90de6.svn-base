@@ -1,0 +1,49 @@
+#pragma once
+
+#include "cocos2d.h"
+#include "MacroVariable.h"
+
+using namespace cocos2d;
+
+#define PANZI_FOOD_COUNT 6
+
+class CFood;
+
+class CFoodInfo
+{
+public:
+    void initProperty(FOOD_TYPE eType, std::vector<int>& vMaterials, int aTastes[], int nIndex = -1);
+    void initWithFood(CFood* pFood);
+    std::vector<int>& getMaterials() {  return m_vMaterials; };
+    CC_SYNTHESIZE(FOOD_TYPE, m_eFoodType, FoodType);
+    CC_SYNTHESIZE(int, m_nPanziIndex, PanziIndex);
+    CC_SYNTHESIZE(Vec2, m_v2FoodPos, FoodPos);
+    
+private:
+    int m_aTastes[TT_MAX];   //酸 辣
+    std::vector<int> m_vMaterials;
+};
+
+class CGlobalData
+{
+public:
+	CGlobalData(void);
+	~CGlobalData(void);
+
+	static CGlobalData* getSingleton(void);
+    
+    void setPanziFood(int nIndex, CFood* pFood);
+    CFoodInfo* getPanziFood(int nIndex);
+    void clearPanziFood();
+    
+    CFood* createFoodByInfo(int nIndex);
+    
+protected:
+    CC_SYNTHESIZE(bool, m_bTouchEnable, TouchEnable);
+    CC_SYNTHESIZE(bool, m_bHighRes, IsHighRes);
+    CC_SYNTHESIZE(LanguageType, m_eLanguageType, LanguageType);
+    CC_SYNTHESIZE(SCENE_CONVERT, m_eSceneConvert, SceneConvert);
+
+private:
+    CFoodInfo* m_aPanziFood[PANZI_FOOD_COUNT];     //之后还会增加个数
+};

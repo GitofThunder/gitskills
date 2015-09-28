@@ -1,0 +1,48 @@
+#include "Food.h"
+#include "GlobalData.h"
+
+float GLOBAL_SELF_SCALE = 0;
+
+CGlobalData::CGlobalData() : m_bHighRes(false)
+{
+    m_eLanguageType = Application::getInstance()->getCurrentLanguage();
+    if(m_eLanguageType != LanguageType::CHINESE)
+    {
+        m_eLanguageType = LanguageType::ENGLISH;
+    }
+}
+
+CGlobalData::~CGlobalData()
+{
+    
+}
+
+CGlobalData* CGlobalData::getSingleton(void)
+{
+    static CGlobalData mGlobalData;
+    return &mGlobalData;
+}
+
+void CGlobalData::setPanziFood(int nIndex, CFood* pFood)
+{
+    if (nIndex >= PANZI_FOOD_COUNT) return;
+    m_aPanziFood[nIndex] = pFood;
+    if (pFood != NULL)
+    {
+        m_aPanziFood[nIndex]->setPanziIndex(nIndex);
+    }
+}
+
+CFood* CGlobalData::getPanziFood(int nIndex)
+{
+    if (nIndex < 0 || nIndex >= PANZI_FOOD_COUNT) return NULL;
+    return m_aPanziFood[nIndex];
+}
+
+void CGlobalData::clearPanziFood()
+{
+    for (int i = 0; i < PANZI_FOOD_COUNT; i++)
+    {
+        m_aPanziFood[i] = NULL;
+    }
+}

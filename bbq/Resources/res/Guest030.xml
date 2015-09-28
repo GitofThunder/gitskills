@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with TexturePacker http://www.codeandweb.com/texturepacker-->
+<!-- $TexturePacker:SmartUpdate:a6a87d2bdcb726259d9e89a2a6a229ba:14dce0414a2e6d44376ebf50670c1dcd:eed06f0ad9ee6a6698e4e545a0ff1a1d$ -->
+<TextureAtlas imagePath="Guest03.pvr.ccz">
+    <SubTexture name="G03_antlers" x="2" y="378" width="207" height="105"/>
+    <SubTexture name="G03_antlers02" x="1268" y="367" width="221" height="123"/>
+    <SubTexture name="G03_arm" x="637" y="179" width="26" height="87"/>
+    <SubTexture name="G03_body" x="1146" y="149" width="120" height="254"/>
+    <SubTexture name="G03_deernose" x="344" y="422" width="79" height="49"/>
+    <SubTexture name="G03_ear" x="500" y="179" width="81" height="146"/>
+    <SubTexture name="G03_ear02" x="500" y="327" width="84" height="143"/>
+    <SubTexture name="G03_eye" x="1617" y="359" width="185" height="63"/>
+    <SubTexture name="G03_eyeball" x="586" y="403" width="36" height="42"/>
+    <SubTexture name="G03_eyebrows01" x="211" y="473" width="54" height="21"/>
+    <SubTexture name="G03_eyebrows02" x="267" y="473" width="49" height="19"/>
+    <SubTexture name="G03_eyelid01" x="824" y="419" width="198" height="76"/>
+    <SubTexture name="G03_eyelid02" x="624" y="419" width="198" height="76"/>
+    <SubTexture name="G03_eyelid03" x="1054" y="405" width="198" height="76"/>
+    <SubTexture name="G03_eyelid04" x="854" y="341" width="198" height="76"/>
+    <SubTexture name="G03_eyelid05" x="654" y="341" width="198" height="76"/>
+    <SubTexture name="G03_eyelid06" x="865" y="263" width="198" height="76"/>
+    <SubTexture name="G03_eyelid07" x="665" y="263" width="198" height="76"/>
+    <SubTexture name="G03_fork" x="211" y="378" width="39" height="91"/>
+    <SubTexture name="G03_hand" x="1491" y="446" width="61" height="36"/>
+    <SubTexture name="G03_hand02" x="252" y="422" width="90" height="49"/>
+    <SubTexture name="G03_head" x="1270" y="2" width="345" height="363"/>
+    <SubTexture name="G03_hotface" x="2" y="179" width="253" height="197"/>
+    <SubTexture name="G03_knife" x="586" y="319" width="18" height="82"/>
+    <SubTexture name="G03_leg" x="583" y="179" width="52" height="138"/>
+    <SubTexture name="G03_mouth01" x="1554" y="479" width="42" height="13"/>
+    <SubTexture name="G03_mouth02" x="1562" y="367" width="43" height="110"/>
+    <SubTexture name="G03_mouth03" x="1491" y="484" width="27" height="13"/>
+    <SubTexture name="G03_mouth04" x="1795" y="2" width="15" height="47"/>
+    <SubTexture name="G03_mouth05" x="1065" y="263" width="43" height="52"/>
+    <SubTexture name="G03_mouth06" x="632" y="319" width="20" height="25"/>
+    <SubTexture name="G03_mouth07" x="606" y="319" width="24" height="61"/>
+    <SubTexture name="G03_mouth08" x="1715" y="424" width="95" height="54"/>
+    <SubTexture name="G03_nose" x="1697" y="454" width="15" height="13"/>
+    <SubTexture name="G03_red" x="496" y="472" width="44" height="25"/>
+    <SubTexture name="G03_sourface" x="1617" y="184" width="193" height="173" frameX="-29" frameY="-21" frameWidth="255" frameHeight="217"/>
+    <SubTexture name="LIzi_ks01" x="1054" y="362" width="72" height="34"/>
+    <SubTexture name="LIzi_ks02" x="1607" y="454" width="88" height="36"/>
+    <SubTexture name="LIzi_ks03" x="1607" y="424" width="106" height="28"/>
+    <SubTexture name="lizi_bad" x="1617" y="2" width="176" height="180"/>
+    <SubTexture name="lizi_hot1" x="667" y="149" width="477" height="112"/>
+    <SubTexture name="lizi_hot2" x="667" y="2" width="601" height="145"/>
+    <SubTexture name="lizi_hot3" x="2" y="2" width="663" height="175"/>
+    <SubTexture name="lizi_like" x="425" y="422" width="69" height="60"/>
+    <SubTexture name="lizi_overeat" x="1491" y="367" width="69" height="77"/>
+    <SubTexture name="lizi_star" x="1065" y="317" width="42" height="43"/>
+    <SubTexture name="lizi_worse" x="257" y="179" width="241" height="241" frameX="-3" frameY="-3" frameWidth="251" frameHeight="251"/>
+</TextureAtlas>

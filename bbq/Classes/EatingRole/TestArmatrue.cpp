@@ -1,0 +1,268 @@
+//
+//  TestArmatrue.cpp
+//  TravelDemo
+//
+//  Created by kids on 15/8/31.
+//
+//
+
+#include "TestArmatrue.h"
+#include "BBQChoosingRole.h"
+#include "cocostudio/CocoStudio.h"
+#include "GlobalFunction.h"
+
+Scene* CTestChageLayer::createScene()
+{
+    auto _scene = Scene::create();
+    
+    auto _layer = CTestChageLayer::create();
+    
+    _scene->addChild(_layer);
+    
+    return _scene;
+}
+
+bool CTestChageLayer::init()
+{
+    if (!Layer::init()) {
+        return false;
+    }
+    
+    auto _layer = LayerColor::create(Color4B(255, 255, 0, 255));
+    this->addChild(_layer);
+    
+    auto visibleSize = Director::getInstance()->getVisibleSize();
+    
+    DBCCFactory::getInstance()->loadDragonBonesData("Guest04.xml", "Guest04");
+    //DBCCFactory::getInstance()->loadTextureAtlas("texture.xml", "Guest04");
+    DBCCFactory::getInstance()->loadTextureAtlas("Guest040.xml", "Guest04");
+    DBCCFactory::getInstance()->loadDragonBonesData("Guest05.xml", "Guest05");
+    DBCCFactory::getInstance()->loadTextureAtlas("Guest050.xml", "Guest05");
+    DBCCFactory::getInstance()->loadDragonBonesData("Guest08.xml", "Guest08");
+    DBCCFactory::getInstance()->loadTextureAtlas("Guest080.xml", "Guest08");
+    
+//    if ((armature = DBCCFactory::getInstance()->buildArmatureNode("Guest04"))) {
+//        this->addChild(armature);
+//        if (armature->getArmature()->getSlot("g04_arm")->getVisible()) {
+//            log("arm is visible!!!");
+//        }
+//        armature->getAnimation()->gotoAndPlay("Default");
+//        armature->setPosition(visibleSize/2);
+//    }
+    armature = DBCCFactory::getInstance()->buildArmatureNode("Guest04");
+    this->addChild(armature);
+    armature->getAnimation()->gotoAndPlay("Default");
+    armature->setPosition(visibleSize/2);
+    
+//    auto _role = BBQChoosingRole::create(0, 0);
+//    this->addChild(_role);
+//    _role->setPosition(visibleSize/3);
+    //_role->setScale(0.5);
+    
+    
+    auto _listener = EventListenerTouchOneByOne::create();
+    _listener->onTouchBegan = CC_CALLBACK_2(CTestChageLayer::onTouchBegan, this);
+    _listener->onTouchMoved = CC_CALLBACK_2(CTestChageLayer::onTouchMoved, this);
+    _listener->onTouchEnded = CC_CALLBACK_2(CTestChageLayer::onTouchEnded, this);
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(_listener, this);
+    
+    //m_flag = true;
+    //schedule(schedule_selector(CTestChageLayer::changeAnimation), 0.1);
+    
+    log("g04_armfasf");
+    log("\x10");
+    log("sizeof(string) = %lu", sizeof(std::string));
+    log("sizeof(float) = %lu", sizeof(float));
+    
+    //addcsb();
+
+    return true;
+}
+
+
+bool CTestChageLayer::onTouchBegan(cocos2d::Touch *touch, cocos2d::Event *unusedevent)
+{
+    static int i = 0;
+    //armature->getArmature()->getSlot("g04_arm")->setVisible(true);
+    switch (i) {
+        case 0:
+            armature->getAnimation()->gotoAndPlay("between01");
+            break;
+        case 1:
+            armature->getAnimation()->gotoAndPlay("between02");
+            break;
+        case 2:
+            armature->getAnimation()->gotoAndPlay("between03");
+            break;
+        case 3:
+            armature->getAnimation()->gotoAndPlay("between04");
+            break;
+        case 4:
+            armature->getAnimation()->gotoAndPlay("want01");
+            break;
+        case 5:
+            armature->getAnimation()->gotoAndPlay("want02");
+            break;
+        case 6:
+            armature->getAnimation()->gotoAndPlay("eat");
+            break;
+        case 7:
+            armature->getAnimation()->gotoAndPlay("like01");
+            break;
+        case 8:
+            armature->getAnimation()->gotoAndPlay("like02");
+            break;
+        case 9:
+            armature->getAnimation()->gotoAndPlay("normal");
+            break;
+        case 10:
+            armature->getAnimation()->gotoAndPlay("hate01");
+            break;
+        case 11:
+            armature->getAnimation()->gotoAndPlay("hate02");
+            break;
+        case 12:
+            armature->getAnimation()->gotoAndPlay("hot");
+            break;
+        case 13:
+            armature->getAnimation()->gotoAndPlay("sour");
+            break;
+        case 14:
+            armature->getAnimation()->gotoAndPlay("overeat");
+            break;
+        case 15:
+            armature->getAnimation()->gotoAndPlay("Default");
+            break;
+        case 16:
+            armature->getAnimation()->gotoAndPlay("Stand");
+            break;
+        case 17:
+            armature->getAnimation()->gotoAndPlay("Sit");
+            break;
+        case 18:
+            armature->getAnimation()->gotoAndPlay("Drag");
+            break;
+        case 19:
+            armature->getAnimation()->gotoAndPlay("refuse01");
+            break;
+        case 20:
+            armature->getAnimation()->gotoAndPlay("refuse02");
+            break;
+        default:
+            break;
+    }
+    i = (++i)%19;
+
+    return true;
+}
+
+
+void CTestChageLayer::onTouchMoved(cocos2d::Touch *touch, cocos2d::Event *unusedevent)
+{
+//    float _delta = touch->getDelta().y;
+//    armature->getAnimation ()->stop();
+//    if ( armature->getArmature()->getSlot("g04_arm")) {
+//        log("not null");
+//        armature->getArmature()->getSlot("g04_arm")->setVisible(true);
+//    }
+//    else
+//    {
+//        log("null");
+//    }
+//    armature->getArmature()->getSlot("G04_hand")->offset = 20;
+//    armature->getAnimation()->play();
+}
+
+
+void CTestChageLayer::onTouchEnded(cocos2d::Touch *touch, cocos2d::Event *unusedevent)
+{
+
+}
+
+
+//bool CTestChageLayer::onTouchBegan(cocos2d::Touch *touch, cocos2d::Event *unusedevent)
+//{
+//    auto _pos_touch = m_node->convertTouchToNodeSpace(touch);
+//    
+//    m_tmp = nullptr;
+//    
+//    auto m_children = m_node->getChildren();
+//    for (auto i = 0; i < m_children.size(); ++i) {
+//        log("zorder[%d] = %d", i, m_children.at(i)->getZOrder());
+//        if (m_children.at(i)->getBoundingBox().containsPoint(_pos_touch)) {
+//            m_tmp = m_children.at(i);
+//            m_tmp->setZOrder(100);
+//            m_tmp->setScale(1.2);
+//            break;
+//        }
+//    }
+//    
+//    return true;
+//}
+//
+//
+//void CTestChageLayer::onTouchMoved(cocos2d::Touch *touch, cocos2d::Event *unusedevent)
+//{
+//    if (m_tmp) {
+//        m_tmp->setPosition(m_tmp->getPosition() + touch->getDelta());
+//    }
+//}
+//
+//void CTestChageLayer::onTouchEnded(cocos2d::Touch *touch, cocos2d::Event *unusedevent)
+//{
+//    if (m_tmp) {
+//        m_tmp->setScale(1);
+//    }
+//}
+//
+
+void CTestChageLayer::changeAnimation(float dt)
+{
+    if (m_flag) {
+        //armature->getAnimation()->gotoAndStop("want02", 0.01);
+        armature->getAnimation()->gotoAndPlay("want01");
+        m_flag = false;
+    }
+    else
+    {
+        //armature->getAnimation()->gotoAndStop("want01", 0.01);
+        armature->getAnimation()->gotoAndPlay("want02");
+        m_flag = true;
+    }
+}
+
+void CTestChageLayer::addcsb()
+{
+    auto visibleSize = Director::getInstance()->getVisibleSize();
+    m_node = CSLoader::createNode("banana.csb");
+    this->addChild(m_node);
+    m_node->setPosition(visibleSize/3);
+}
+
+
+void CTestChageLayer::eventHandler(cocos2d::EventCustom *event)
+{
+    EventData* eventData = static_cast<EventData*>(event->getUserData());
+    
+    switch (eventData->getType()) {
+        case EventData::EventType::COMPLETE:
+        {
+            //如果动画循环播放完毕有相应的事要做，在这里处理
+            if (strcmp(eventData->animationState->name.c_str(), "Sit") == 0) {
+                armature->getAnimation()->gotoAndPlay("Default");
+            }
+            break;
+        }
+        case EventData::EventType::LOOP_COMPLETE:
+        {
+            break;
+        }
+        case EventData::EventType::ANIMATION_FRAME_EVENT:
+        {
+            log("animation_frame_event time ");
+        }
+            
+        default:
+            break;
+    }
+}

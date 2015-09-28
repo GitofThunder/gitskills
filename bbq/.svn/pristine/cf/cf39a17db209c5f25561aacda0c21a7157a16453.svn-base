@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with TexturePacker http://www.codeandweb.com/texturepacker-->
+<!-- $TexturePacker:SmartUpdate:672d93c018375bb6ad216d64a9061906:0dc66be4f7542fe4c5ce36fa7308b3ab:3df52e58846057f8668c6621cf0a874b$ -->
+<TextureAtlas imagePath="Guest09.pvr.ccz">
+    <SubTexture name="G09_arm" x="2691" y="2" width="31" height="111"/>
+    <SubTexture name="G09_beard" x="879" y="239" width="46" height="9"/>
+    <SubTexture name="G09_body" x="1347" y="2" width="234" height="191"/>
+    <SubTexture name="G09_brim" x="1832" y="179" width="283" height="50"/>
+    <SubTexture name="G09_eye01" x="1242" y="232" width="173" height="15"/>
+    <SubTexture name="G09_eye02" x="1057" y="215" width="170" height="20"/>
+    <SubTexture name="G09_eye03" x="1417" y="232" width="170" height="15"/>
+    <SubTexture name="G09_eye04" x="879" y="215" width="176" height="22"/>
+    <SubTexture name="G09_eye05" x="1057" y="237" width="183" height="10"/>
+    <SubTexture name="G09_eye06" x="1229" y="215" width="189" height="15"/>
+    <SubTexture name="G09_eye08" x="701" y="215" width="176" height="26"/>
+    <SubTexture name="G09_eye09" x="2117" y="165" width="204" height="41"/>
+    <SubTexture name="G09_eye10" x="2117" y="208" width="204" height="38"/>
+    <SubTexture name="G09_eyebrows01" x="1898" y="231" width="40" height="17"/>
+    <SubTexture name="G09_eyebrows02" x="2178" y="81" width="42" height="18"/>
+    <SubTexture name="G09_face" x="370" y="2" width="329" height="242"/>
+    <SubTexture name="G09_fork" x="2412" y="130" width="39" height="91"/>
+    <SubTexture name="G09_hand" x="2320" y="2" width="93" height="36"/>
+    <SubTexture name="G09_hand02" x="2249" y="64" width="104" height="34"/>
+    <SubTexture name="G09_hat" x="2" y="2" width="366" height="246"/>
+    <SubTexture name="G09_hateface" x="1024" y="2" width="321" height="211"/>
+    <SubTexture name="G09_hatt" x="1538" y="195" width="45" height="29"/>
+    <SubTexture name="G09_hotface" x="701" y="2" width="321" height="211"/>
+    <SubTexture name="G09_leg" x="2631" y="2" width="58" height="227"/>
+    <SubTexture name="G09_mouth01" x="1832" y="231" width="64" height="11"/>
+    <SubTexture name="G09_mouth02" x="1347" y="195" width="54" height="15"/>
+    <SubTexture name="G09_mouth03" x="2415" y="2" width="60" height="52"/>
+    <SubTexture name="G09_mouth04" x="2429" y="56" width="22" height="37"/>
+    <SubTexture name="G09_mouth05" x="1940" y="231" width="40" height="13"/>
+    <SubTexture name="G09_mouth06" x="2253" y="138" width="14" height="22"/>
+    <SubTexture name="G09_mouth08" x="1420" y="195" width="116" height="35"/>
+    <SubTexture name="G09_mouth09" x="2477" y="2" width="44" height="52"/>
+    <SubTexture name="G09_mouth10" x="2025" y="2" width="151" height="97"/>
+    <SubTexture name="G09_mouth11" x="2691" y="174" width="20" height="31"/>
+    <SubTexture name="G09_mouth12" x="2320" y="40" width="61" height="22"/>
+    <SubTexture name="G09_nose" x="2691" y="115" width="23" height="57"/>
+    <SubTexture name="G09_red" x="2025" y="101" width="226" height="62" frameX="0" frameY="0" frameWidth="228" frameHeight="64"/>
+    <SubTexture name="G09_smoke" x="2323" y="138" width="87" height="106"/>
+    <SubTexture name="G09_sourface" x="1832" y="2" width="191" height="175" frameX="-30" frameY="-20" frameWidth="255" frameHeight="217"/>
+    <SubTexture name="LIzi_ks01" x="2355" y="64" width="72" height="34"/>
+    <SubTexture name="LIzi_ks02" x="2253" y="100" width="88" height="36"/>
+    <SubTexture name="LIzi_ks03" x="2343" y="100" width="106" height="28"/>
+    <SubTexture name="lizi_bad" x="2453" y="56" width="176" height="180"/>
+    <SubTexture name="lizi_like" x="2249" y="2" width="69" height="60"/>
+    <SubTexture name="lizi_overeat" x="2178" y="2" width="69" height="77"/>
+    <SubTexture name="lizi_star" x="2523" y="2" width="42" height="43"/>
+    <SubTexture name="lizi_worse" x="1589" y="2" width="241" height="241" frameX="-3" frameY="-3" frameWidth="251" frameHeight="251"/>
+</TextureAtlas>

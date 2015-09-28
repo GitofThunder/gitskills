@@ -1,0 +1,32 @@
+#ifndef __FOOD_PIECE_H__
+#define __FOOD_PIECE_H__
+
+#include "cocos2d.h"
+#include "Food.h"
+#include "PRFilledPolygon.h"
+
+class CFoodPiece : public CFood
+{
+public:
+    CFoodPiece();
+    virtual ~CFoodPiece();
+    CREATE_FUNC(CFoodPiece);
+    static CFoodPiece* create(const char *pszFileName);
+    static CFoodPiece* create(MATERIAL_ID eId);
+    virtual bool init();
+    virtual bool initWithFile(const char *pszFileName);
+    virtual bool isPointWithinFood(Vec2 v2Pt);
+    
+    void myUpdate(float fEscapeTime);
+    
+    void createNodeByCsb(const char *pszFileName);
+    
+    Node* getChildByTag(int tag);
+    
+    Vector<Node*>& getChildren();
+    
+private:
+    Node* m_foodpieces;
+};
+
+#endif // __FOOD_PIECE_H__

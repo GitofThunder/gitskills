@@ -1,0 +1,102 @@
+#ifndef __KITCHEN_H__
+#define __KITCHEN_H__
+
+#include "cocos2d.h"
+#include "GlobalData.h"
+
+class CFood;
+class CFoodMaterial;
+class CFridge;
+class CFridgeFood;
+
+enum KITCHEN_STATE
+{
+    KS_NONE = 0,
+    KS_MAKE,
+    KS_GET,
+    KS_MAX
+};
+
+#define PANZI_COUNT     5
+
+class CPanzi : public Sprite
+{
+public:
+    CPanzi();
+    virtual ~CPanzi();
+    CREATE_FUNC(CPanzi);
+    static CPanzi* create(const char *pszFileName);
+    
+    CC_SYNTHESIZE(int, m_nIndex, Index);
+    CC_SYNTHESIZE(bool, m_bHasFood, HasFood);
+private:
+    
+};
+
+struct SToolConfig
+{
+    std::string sToolTexture;
+    Vec2 v2Position;
+};
+
+class CKitchen : public cocos2d::Layer
+{
+public:
+    // there's no 'id' in cpp, so we recommend returning the class instance pointer
+    static cocos2d::Scene* createScene();
+    
+    CKitchen();
+    virtual ~CKitchen();
+    CREATE_FUNC(CKitchen);
+    virtual bool init();
+    virtual void onExit();
+    
+    void createLayers();
+    void initBackGround();
+    void initDeskAndFridge();
+    void initBtn();
+    void registerEventListener();
+    
+    virtual bool onTouchBegan(Touch *touch, Event *unused_event);
+    virtual void onTouchMoved(Touch *touch, Event *unused_event);
+    virtual void onTouchEnded(Touch *touch, Event *unused_event);
+    virtual void onTouchCancelled(Touch *touch, Event *unused_event);
+    
+    void myUpdate(float fEscapeTime);
+    void menuHomeCallback(Ref* pSender);
+    void menuNextCallback(Ref* pSender);
+    void flyOut(int nIndex);
+    void putFoodIntoPanzi(int nIndex);
+    
+    void getSceneTouchBegin(Touch* pTouch);
+    void getSceneTouchMove(Touch* pTouch);
+    void getSceneTouchEnd(Touch* pTouch);
+    void getSceneTouchCancel(Touch* pTouch);
+    
+    void makeSceneTouchBegin(Touch* pTouch);
+    void makeSceneTouchMove(Touch* pTouch);
+    void makeSceneTouchEnd(Touch* pTouch);
+    void checkToolsClicked(Touch* pTouch);
+    void makeSceneTouchCancel(Touch* pTouch);
+    bool isWithinTools(Vec2 v2Pos);
+    
+    CC_SYNTHESIZE(KITCHEN_STATE, m_eKitchenState, KitchenState);
+    
+private:
+    bool m_bBtnClicked;
+    bool m_bPanziFoodTouched;
+    Layer* m_pSceneLayer;
+    Layer* m_pUILayer;
+    CFridge* m_pFridge;
+    Sprite* m_aTools[5];
+    CPanzi* m_aPanzi[PANZI_COUNT];
+    CFood* m_aPanziFoods[PANZI_FOOD_COUNT];
+    CFridgeFood* m_pTouchedFood;     //冰箱中拖出的食物
+    CFoodMaterial* m_pTouchedPanziFood; //取材场景盘子中拖起的食物
+    
+    CFood* m_pCurTouchedFood;   //制作场景盘子中拖起的食物
+    Vec2 m_v2LastDelta;
+    int m_nTouchedPanziFood;
+};
+
+#endif // __KITCHEN_H__

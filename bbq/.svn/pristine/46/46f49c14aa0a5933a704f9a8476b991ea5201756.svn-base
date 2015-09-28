@@ -1,0 +1,26 @@
+#ifndef FOOD_CUT_H
+#define FOOD_CUT_H
+
+#include "cocos2d.h"
+#include "Food.h"
+#include "MacroVariable.h"
+#include "PRFilledPolygon.h"
+
+using namespace cocos2d;
+
+class CFoodCut : public PRFilledPolygon
+{
+public:
+    CFoodCut();
+    virtual ~CFoodCut();
+    static CFoodCut* create(MATERIAL_ID id, int nIndex = -1, int nCutIndex = -1);
+    static CFoodCut* create(MATERIAL_ID id, Vector2dVector &polygonPoints, int nIndex = -1, int nCutIndex = -1);
+    void myUpdate(float fEscapeTime);
+    
+    CC_SYNTHESIZE(int, m_nTouchedIndex, TouchedIndex);
+private:
+    
+};
+
+#endif
+

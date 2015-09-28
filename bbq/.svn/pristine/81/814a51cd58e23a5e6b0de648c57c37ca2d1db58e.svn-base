@@ -1,0 +1,275 @@
+#include "FoodMaterial.h"
+#include "Fridge.h"
+#include "GlobalFunction.h"
+
+CFridgeFood::CFridgeFood() : m_pMaterialId(MI_XIANGJIAO), m_bPressed(false)
+{
+    
+}
+
+CFridgeFood::~CFridgeFood()
+{
+    
+}
+
+CFridgeFood* CFridgeFood::create(const char *pszFileName)
+{
+    CFridgeFood* pRet = new (std::nothrow) CFridgeFood();
+    if (pRet && pRet->initWithFile(pszFileName))
+    {
+        pRet->autorelease();
+    }
+    else
+    {
+        CC_SAFE_DELETE(pRet);
+    }
+    
+    return pRet;
+}
+
+
+CFridge::CFridge() :
+m_pIceBox(NULL),
+m_pContentLayer(NULL),
+m_pCurTouchedFood(NULL),
+m_bTouched(false),
+m_bFoodTouched(false),
+m_bMoved(false),
+m_fOldPos_Y(0),
+m_lTouchBeginTime(0),
+m_bDraged(false)
+{
+    
+}
+
+CFridge::~CFridge()
+{
+    
+}
+
+bool CFridge::init()
+{
+    //////////////////////////////
+    // 1. super init first
+    if ( !Layer::init() )
+    {
+        return false;
+    }
+    
+    Size visibleSize = Director::getInstance()->getVisibleSize();
+    Vec2 origin = Director::getInstance()->getVisibleOrigin();
+
+    initBackGround();
+    
+    
+    schedule(schedule_selector(CFridge::myUpdate));
+    return true;
+}
+
+void CFridge::onExit()
+{
+    Layer::onExit();
+}
+
+void CFridge::initBackGround()
+{
+    m_pIceBox = addSprite("bingxiangti.png", this, Vec2::ZERO, 0, Vec2::ZERO);
+    float fWidth = m_pIceBox->getBoundingBox().size.width;
+    //首先创建scrollView
+    m_pContentLayer = Layer::create();//创建scrollView中的容器层
+    //scroll_layer->setPosition(Vec2((visibleSize.width - 1640) / 2, 0));
+    m_pContentLayer->setPosition(Point::ZERO);
+    m_pContentLayer->setAnchorPoint(Point::ZERO);
+    m_pContentLayer->setContentSize(Size(fWidth, FLOOR_OFFSET * FRIDGE_FLOOR + 180));//设置容器层大小
+    
+    m_pScrollView = ScrollView::create(Size(fWidth, 1536), m_pContentLayer);//创建scrollView，显示窗口大小为(400,300)
+    m_pScrollView->setDelegate(this);//设置委托
+    m_pScrollView->setDirection(ScrollView::Direction::VERTICAL);//设置滚动方向为水平
+    m_pScrollView->setPosition(Vec2::ZERO);
+    this->addChild(m_pScrollView,2);
+    m_pScrollView->setContentOffset(Vec2(0, 0), false);
+    
+    std::vector<int> vMaterials;
+    vMaterials.clear();
+    vMaterials.push_back(MI_XIANGJIAO);
+    
+    int aTastes[2] = {0, 0};
+    MATERIAL_ID eMaterial = MI_MAX;
+    const char* pName = NULL;
+    for (int i = 0; i < FRIDGE_FLOOR; i++)
+    {
+        addSprite("bingxiangjia.png", m_pContentLayer, Vec2(33, FLOOR_OFFSET * i), i * 2, Vec2::ZERO);
+        /*
+        CFoodMaterial* pMaterial = CFoodMaterial::create();
+        
+        if (pMaterial != NULL)
+        {
+            pMaterial->filledPolygonWithPointsAndTexture();
+            pMaterial->initProperty(FT_ORIGIN, vMaterials, aTastes);
+        }
+         */
+        for (int j = 0; j < 3; j++)
+        {
+            eMaterial = FRIDGE_CONFIG[i * 3 + j];
+            if (eMaterial >= MI_MAX) break;
+            pName = MATERIAL_CONFIG[(int)eMaterial].sName.c_str();
+            m_aFoods[i * 3 + j] = addSelfSprite<CFridgeFood>(pName, m_pContentLayer, Vec2(j * 350 + 200, i * 300 + 300), i * 2 + 3, Vec2::ANCHOR_MIDDLE);
+            m_aFoods[i * 3 + j]->setMaterialId(eMaterial);
+            m_aFoods[i * 3 + j]->setTag(i * 3 + j + 1);
+        }
+    }
+}
+
+void CFridge::myUpdate(float fEscapeTime)
+{
+    
+}
+
+void CFridge::touchBegin(Touch *touch)
+{
+    log("touchBegin");
+    if (m_bFoodTouched) return; //todo: 梳理m_bFoodTouched的置位
+    Vec2 v2Local = m_pContentLayer->convertTouchToNodeSpace(touch);
+    Rect rtFridge = m_pIceBox->getBoundingBox();
+    m_bFoodTouched = false;
+    m_bMoved = false;
+    m_bDraged = false;
+    if (rtFridge.containsPoint(v2Local))
+    {
+        m_bTouched = true;
+        
+        //m_pScrollView->getEventDispatcher()->setEnabled(false);
+        m_pScrollView->setScrollEnabled(false);
+        
+        m_lTouchBeginTime = getCurTime();
+        for (int i = 0; i < FOOD_COUNT; i++)
+        {
+            CFridgeFood* pFood = m_aFoods[i];
+            if (pFood->getBoundingBox().containsPoint(v2Local))
+            {
+                m_bFoodTouched = true;
+                m_pCurTouchedFood = pFood;
+                return;
+            }
+        }
+
+        m_pScrollView->setScrollEnabled(true);
+        //m_pScrollView->getEventDispatcher()->setEnabled(true);
+    }
+    else
+    {
+        m_bTouched = false;
+    }
+}
+
+void CFridge::touchMove(Touch *touch)
+{
+    log("touchMove");
+    if (!m_bTouched) return;
+    
+    Vec2 v2Delta = touch->getDelta();
+    
+    if (m_bFoodTouched)
+    {
+        long lCurTime = getCurTime();
+        if (lCurTime - m_lTouchBeginTime > 500)
+        {
+            if (!m_bMoved || m_bDraged)
+            {
+                // 拖起食材
+                dragFood(touch);
+            }
+        }
+        else
+        {
+            Vec2 v2Moved = touch->getLocation() - touch->getStartLocation();
+            if (v2Moved.length() >= 10.0f)
+            {
+                m_bMoved = true;
+                if (isSlideHorizontal(touch))
+                {
+                    // 拖起食材
+                    if (!m_pScrollView->getScrollEnabled())
+                        dragFood(touch);
+                }
+                else
+                {
+                    if (!m_bDraged)
+                        m_pScrollView->setScrollEnabled(true);
+                }
+            }
+        }
+    }
+    else
+    {
+        
+    }
+}
+
+void CFridge::touchEnd(Touch *touch)
+{
+    log("touchEnd");
+    if (!m_bTouched) return;
+    m_bTouched = false;
+    m_bFoodTouched = false;
+    m_pScrollView->setScrollEnabled(true);
+    
+    if (m_bDraged)
+    {
+        endDragFood(touch);
+    }
+}
+
+void CFridge::touchCancel(Touch *touch)
+{
+    log("touchCancel");
+    if (!m_bTouched) return;
+    m_bTouched = false;
+    m_bFoodTouched = false;
+    m_pScrollView->setScrollEnabled(true);
+    
+    
+    // todo: touchcancel时 已拖动食材的流程
+    
+    m_pCurTouchedFood = NULL;   //todo:应该在其他地方调用？
+}
+
+void CFridge::dragFood(Touch *touch)
+{
+    m_bDraged = true;
+    
+    MATERIAL_ID id = MI_MAX;
+    if (m_pCurTouchedFood != NULL)
+    {
+        m_pCurTouchedFood->setVisible(false);
+        id = m_pCurTouchedFood->getMaterialId();
+    }
+    SDragedFoodInfo info;
+    info.pTouch = touch;
+    info.eId = id;
+    Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("dragFridgeFood", &info);
+}
+
+void CFridge::endDragFood(Touch* pTouch)
+{
+    if (m_pCurTouchedFood == NULL) return;
+    Vec2 v2Touch = m_pContentLayer->convertTouchToNodeSpace(pTouch);
+    float fDistance = v2Touch.distance(m_pCurTouchedFood->getPosition());
+    // 拖到冰箱里
+    if (fDistance <= 300)
+    {
+        SFoodBackInfo info;
+        info.v2Dest = m_pContentLayer->convertToWorldSpace(m_pCurTouchedFood->getPosition());
+        info.func = [this](){ m_pCurTouchedFood->setVisible(true); m_pCurTouchedFood = NULL; };
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("endDragFoodBack", &info);
+    }
+    else
+    {
+        m_pCurTouchedFood->setScale(0);
+        m_pCurTouchedFood->setVisible(true);
+        m_pCurTouchedFood->runAction(Sequence::create(ScaleTo::create(0.5f, 1),
+                                                      CallFunc::create([this](){ m_pCurTouchedFood = NULL;  }), NULL));
+        
+        Director::getInstance()->getEventDispatcher()->dispatchCustomEvent("endDragFoodOut", pTouch);
+    }
+}

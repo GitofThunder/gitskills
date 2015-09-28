@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with TexturePacker http://www.codeandweb.com/texturepacker-->
+<!-- $TexturePacker:SmartUpdate:4b19526207e0594396253b1509714f19:25ace5351d0e660e32c1b80c808eac8f:cdf6f600d9c29278b79876d75f9cb452$ -->
+<TextureAtlas imagePath="Guest08.pvr.ccz">
+    <SubTexture name="G08_arm" x="1237" y="149" width="29" height="113"/>
+    <SubTexture name="G08_arm01" x="2" y="462" width="69" height="22"/>
+    <SubTexture name="G08_beard" x="1495" y="485" width="78" height="4"/>
+    <SubTexture name="G08_body" x="496" y="179" width="143" height="283"/>
+    <SubTexture name="G08_cloth" x="1618" y="174" width="69" height="28"/>
+    <SubTexture name="G08_ear" x="1146" y="149" width="89" height="133"/>
+    <SubTexture name="G08_eye" x="1041" y="432" width="186" height="60"/>
+    <SubTexture name="G08_eyeball" x="137" y="462" width="42" height="42"/>
+    <SubTexture name="G08_eyelid01" x="841" y="432" width="198" height="72"/>
+    <SubTexture name="G08_eyelid02" x="1015" y="358" width="198" height="72"/>
+    <SubTexture name="G08_eyelid03" x="1015" y="284" width="198" height="72"/>
+    <SubTexture name="G08_eyelid04" x="641" y="411" width="198" height="72"/>
+    <SubTexture name="G08_eyelid05" x="641" y="337" width="198" height="72"/>
+    <SubTexture name="G08_eyelid06" x="641" y="263" width="198" height="72"/>
+    <SubTexture name="G08_eyelid07" x="202" y="422" width="198" height="72"/>
+    <SubTexture name="G08_eyelid08" x="2" y="388" width="198" height="72"/>
+    <SubTexture name="G08_face" x="1270" y="2" width="305" height="269"/>
+    <SubTexture name="G08_fork" x="1577" y="112" width="39" height="91"/>
+    <SubTexture name="G08_hand" x="1652" y="204" width="32" height="20"/>
+    <SubTexture name="G08_hotface" x="1237" y="273" width="256" height="230" frameX="-21" frameY="-18" frameWidth="298" frameHeight="266"/>
+    <SubTexture name="G08_knife" x="1673" y="226" width="18" height="82"/>
+    <SubTexture name="G08_leg" x="1577" y="2" width="30" height="108"/>
+    <SubTexture name="G08_mouth01" x="1609" y="81" width="73" height="23"/>
+    <SubTexture name="G08_mouth02" x="402" y="422" width="86" height="70"/>
+    <SubTexture name="G08_mouth03" x="1577" y="205" width="73" height="49"/>
+    <SubTexture name="G08_mouth04" x="73" y="462" width="62" height="30"/>
+    <SubTexture name="G08_mouth05" x="150" y="210" width="32" height="68"/>
+    <SubTexture name="G08_mouth06" x="1671" y="106" width="19" height="36"/>
+    <SubTexture name="G08_mouth07" x="1618" y="106" width="51" height="66"/>
+    <SubTexture name="G08_mouth08" x="202" y="378" width="46" height="36"/>
+    <SubTexture name="G08_nose" x="1495" y="491" width="27" height="13"/>
+    <SubTexture name="G08_red" x="2" y="179" width="249" height="29"/>
+    <SubTexture name="G08_sourface" x="841" y="263" width="172" height="156" frameX="-27" frameY="-19" frameWidth="230" frameHeight="196"/>
+    <SubTexture name="G08_tail" x="2" y="210" width="146" height="176"/>
+    <SubTexture name="LIzi_ks01" x="150" y="342" width="72" height="34"/>
+    <SubTexture name="LIzi_ks02" x="1603" y="455" width="88" height="36"/>
+    <SubTexture name="LIzi_ks03" x="1495" y="455" width="106" height="28"/>
+    <SubTexture name="lizi_bad" x="1495" y="273" width="176" height="180"/>
+    <SubTexture name="lizi_hot1" x="667" y="149" width="477" height="112"/>
+    <SubTexture name="lizi_hot2" x="667" y="2" width="601" height="145"/>
+    <SubTexture name="lizi_hot3" x="2" y="2" width="663" height="175"/>
+    <SubTexture name="lizi_like" x="150" y="280" width="69" height="60"/>
+    <SubTexture name="lizi_overeat" x="1609" y="2" width="69" height="77"/>
+    <SubTexture name="lizi_star" x="184" y="210" width="42" height="43"/>
+    <SubTexture name="lizi_worse" x="253" y="179" width="241" height="241" frameX="-3" frameY="-3" frameWidth="251" frameHeight="251"/>
+</TextureAtlas>

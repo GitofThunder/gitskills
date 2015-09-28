@@ -1,0 +1,30 @@
+#pragma once
+
+#include "cocos2d.h"
+
+using namespace cocos2d;
+
+#define PANZI_FOOD_COUNT 6
+
+class CFood;
+
+class CGlobalData
+{
+public:
+	CGlobalData(void);
+	~CGlobalData(void);
+
+	static CGlobalData* getSingleton(void);
+    
+    void setPanziFood(int nIndex, CFood* pFood);
+    CFood* getPanziFood(int nIndex);
+    void clearPanziFood();
+    
+protected:
+    CC_SYNTHESIZE(bool, m_bTouchEnable, TouchEnable);
+    CC_SYNTHESIZE(bool, m_bHighRes, IsHighRes);
+    CC_SYNTHESIZE(LanguageType, m_eLanguageType, LanguageType);
+
+private:
+    CFood* m_aPanziFood[PANZI_FOOD_COUNT];     //之后还会增加个数
+};

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with TexturePacker http://www.codeandweb.com/texturepacker-->
+<!-- $TexturePacker:SmartUpdate:10df722ca3c9b041de38852d75a9d64d:1eaf1a1a1830c00fc01e4a46160bdc44:17a843f35aad0aa7130232bcb9b835f3$ -->
+<TextureAtlas imagePath="Guest10.pvr.ccz">
+    <SubTexture name="G10_arm" x="1526" y="116" width="38" height="137"/>
+    <SubTexture name="G10_beard" x="1224" y="214" width="93" height="28"/>
+    <SubTexture name="G10_beard02" x="1319" y="209" width="88" height="27"/>
+    <SubTexture name="G10_body" x="326" y="2" width="251" height="320"/>
+    <SubTexture name="G10_eye" x="1374" y="238" width="150" height="48"/>
+    <SubTexture name="G10_eyeball" x="981" y="289" width="12" height="12"/>
+    <SubTexture name="G10_eyebrows01" x="579" y="304" width="71" height="20"/>
+    <SubTexture name="G10_eyebrows04" x="916" y="481" width="69" height="23"/>
+    <SubTexture name="G10_eyelid01" x="1783" y="373" width="171" height="62"/>
+    <SubTexture name="G10_eyelid02" x="1771" y="309" width="171" height="62"/>
+    <SubTexture name="G10_eyelid03" x="1771" y="245" width="171" height="62"/>
+    <SubTexture name="G10_eyelid04" x="1598" y="436" width="171" height="62"/>
+    <SubTexture name="G10_eyelid05" x="1425" y="436" width="171" height="62"/>
+    <SubTexture name="G10_eyelid06" x="1252" y="436" width="171" height="62"/>
+    <SubTexture name="G10_eyelid07" x="1771" y="437" width="160" height="58"/>
+    <SubTexture name="G10_face" x="2" y="2" width="322" height="323"/>
+    <SubTexture name="G10_fork" x="1290" y="116" width="39" height="91"/>
+    <SubTexture name="G10_hand" x="1566" y="165" width="117" height="45"/>
+    <SubTexture name="G10_hand02" x="1566" y="116" width="136" height="47"/>
+    <SubTexture name="G10_hat" x="903" y="2" width="319" height="285"/>
+    <SubTexture name="G10_hotface" x="579" y="2" width="322" height="300" frameX="0" frameY="0" frameWidth="322" frameHeight="302"/>
+    <SubTexture name="G10_knife" x="1331" y="116" width="18" height="82"/>
+    <SubTexture name="G10_leg" x="845" y="304" width="69" height="192"/>
+    <SubTexture name="G10_mouth01" x="652" y="304" width="102" height="19"/>
+    <SubTexture name="G10_mouth02" x="1109" y="436" width="35" height="68"/>
+    <SubTexture name="G10_mouth03" x="809" y="304" width="34" height="16"/>
+    <SubTexture name="G10_mouth04" x="995" y="289" width="41" height="8"/>
+    <SubTexture name="G10_mouth05" x="1712" y="245" width="43" height="44"/>
+    <SubTexture name="G10_mouth06" x="756" y="304" width="51" height="18"/>
+    <SubTexture name="G10_mouth07" x="987" y="481" width="92" height="22"/>
+    <SubTexture name="G10_mouth08" x="1347" y="245" width="25" height="33"/>
+    <SubTexture name="G10_mouth09" x="903" y="289" width="76" height="13"/>
+    <SubTexture name="G10_mouth10" x="1224" y="245" width="121" height="41"/>
+    <SubTexture name="G10_neck" x="1422" y="116" width="90" height="52"/>
+    <SubTexture name="G10_nose" x="1224" y="116" width="64" height="96"/>
+    <SubTexture name="G10_scarf" x="1199" y="436" width="51" height="65"/>
+    <SubTexture name="G10_scarf02" x="1146" y="436" width="51" height="65"/>
+    <SubTexture name="G10_sourface" x="916" y="304" width="191" height="175" frameX="-30" frameY="-20" frameWidth="255" frameHeight="217"/>
+    <SubTexture name="lizi_bad" x="667" y="325" width="176" height="180"/>
+    <SubTexture name="lizi_hot1" x="1224" y="2" width="477" height="112"/>
+    <SubTexture name="lizi_hot2" x="1109" y="289" width="601" height="145"/>
+    <SubTexture name="lizi_hot3" x="2" y="327" width="663" height="175"/>
+    <SubTexture name="lizi_like" x="1712" y="373" width="69" height="60"/>
+    <SubTexture name="lizi_overeat" x="1351" y="116" width="69" height="77"/>
+    <SubTexture name="lizi_star" x="1712" y="291" width="42" height="43"/>
+    <SubTexture name="lizi_worse" x="1712" y="2" width="241" height="241" frameX="-3" frameY="-3" frameWidth="251" frameHeight="251"/>
+</TextureAtlas>

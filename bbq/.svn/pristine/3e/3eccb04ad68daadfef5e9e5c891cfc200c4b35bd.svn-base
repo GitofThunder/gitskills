@@ -1,0 +1,97 @@
+#ifndef __Cut_Scene__
+#define __Cut_Scene__
+
+#include "cocos2d.h"
+#include "cocos-ext.h"
+#include "CCBlade.h"
+#include "MacroVariable.h"
+
+USING_NS_CC;
+USING_NS_CC_EXT;
+
+#define PARTICLE_COUNT  10
+
+class CFoodCut;
+class CFoodMaterial;
+
+class CCutScene : public Layer, public ScrollViewDelegate
+{
+public:
+    CCutScene();
+    virtual ~CCutScene();
+    static Scene* createScene();
+    virtual bool init() override;
+    
+    void createBackground();
+    void createScrollLayer();
+    void setPhyWorld(PhysicsWorld* world){ _world = world; };
+    
+    virtual void update(float dt);
+    void bottomBtnCallback(Ref* pSender);
+    void backCallback(Ref* pSender);
+    
+    void scrollLayerTouchBegin(Touch *touch);
+    void scrollLayerTouchMove(Touch *touch);
+    void scrollLayerTouchEnd(Touch *touch);
+    void scrollLayerTouchCancel(Touch *touch);
+    
+    void createPolygonFood(Touch *touch, MATERIAL_ID id, int nTouchedIndex);
+    void dragFood(Touch *touch);
+    
+    bool slice(PhysicsWorld& world, const PhysicsRayCastInfo& info, void* data);
+    void clipPoly(PhysicsShapePolygon* shape, Point normal, float distance);
+    
+    void checkFoodSliced();
+    
+    virtual bool onTouchBegan(Touch *touch, Event *unused_event);
+    virtual void onTouchMoved(Touch *touch, Event *unused_event);
+    virtual void onTouchEnded(Touch *touch, Event *unused_event);
+    virtual void onTouchCancelled(Touch *touch, Event *unused_event);
+    
+    CREATE_FUNC(CCutScene);
+private:
+    PhysicsWorld* _world;
+    Sprite* _bg;
+    
+    Blade* _blade;
+    Vector<Blade*> _blades;
+    Point _startPoint;
+    Point _endPoint;
+    Size _visibleSize;
+    float _deltaRemainder;
+    int _sliceTag;
+    Vec2 m_v2Delta;
+    long long m_lLastSlice;
+    
+    ParticleSystemQuad* m_pEmitter[PARTICLE_COUNT];
+    
+    CFoodMaterial* m_aFoods[5];
+    
+    ScrollView* m_pScrollView;
+    Layer* m_pContentLayer;
+    MenuItem* m_pBottomBtn;
+    bool m_bShowBottom;
+    bool m_bBtnClicked;
+    bool m_bEnableScroll;
+    bool m_bDraged;
+    
+    int m_nTouchedIndex;
+    int m_nTouchedPanzi;
+    bool m_bFoodTouched;
+    bool m_bMoved;
+    CFoodMaterial* m_pCurTouchedFood;
+    
+    bool m_bHasFood;
+    int m_nSliceCount;
+    
+    long long m_lTouchBeginTime;
+    
+    Vec2 m_v2BottomBtnShow;
+    Vec2 m_v2BottonBtnHide;
+    Vec2 m_v2ScrollShow;
+    Vec2 m_v2ScrollHide;
+    
+    std::vector<CFoodCut*> m_vCutFoods;
+};
+
+#endif

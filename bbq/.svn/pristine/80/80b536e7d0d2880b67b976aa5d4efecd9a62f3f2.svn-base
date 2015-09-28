@@ -1,0 +1,44 @@
+#include "FoodMaterial.h"
+
+CFoodMaterial::CFoodMaterial()
+{
+    m_eFoodType = FT_ORIGIN;
+}
+
+CFoodMaterial::~CFoodMaterial()
+{
+    
+}
+
+CFoodMaterial* CFoodMaterial::create(const char *pszFileName)
+{
+    CFoodMaterial* pRet = new (std::nothrow) CFoodMaterial();
+    if (pRet && pRet->initWithFile(pszFileName))
+    {
+        pRet->autorelease();
+    }
+    else
+    {
+        CC_SAFE_DELETE(pRet);
+    }
+    
+    return pRet;
+}
+
+
+bool CFoodMaterial::init()
+{
+    if (!Sprite::init())
+    {
+        return false;
+    }
+    
+    schedule(schedule_selector(CFoodMaterial::myUpdate));
+    return true;
+}
+
+void CFoodMaterial::myUpdate(float fEscapeTime)
+{
+    
+}
+

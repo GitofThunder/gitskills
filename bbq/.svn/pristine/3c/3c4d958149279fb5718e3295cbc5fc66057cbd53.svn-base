@@ -1,0 +1,23 @@
+#ifndef __FOOD_PIECE_H__
+#define __FOOD_PIECE_H__
+
+#include "cocos2d.h"
+#include "Food.h"
+#include "PRFilledPolygon.h"
+
+class CFoodPiece : public CFood
+{
+public:
+    CFoodPiece();
+    virtual ~CFoodPiece();
+    CREATE_FUNC(CFoodPiece);
+    static CFoodPiece* create(const char *pszFileName);
+    virtual bool init();
+
+    void myUpdate(float fEscapeTime);
+    
+private:
+    
+};
+
+#endif // __FOOD_PIECE_H__

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>C9F9E621-D1AA-4927-B7B3-94E7469B74D5</string>
+	<key>IDESourceControlProjectName</key>
+	<string>bbq</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>867c210f-ab6b-49c3-a926-6eeb1f983abf++7604</key>
+		<string>svn://localhost/TravelBritain</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>svn_prj/bbq_svn/proj.ios_mac/bbq.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>867c210f-ab6b-49c3-a926-6eeb1f983abf++7604</key>
+		<string>../../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectRepositoryRootDictionary</key>
+	<dict>
+		<key>867c210f-ab6b-49c3-a926-6eeb1f983abf++7604</key>
+		<string>svn://localhost</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>svn://localhost/TravelBritain/svn_prj/bbq_svn/proj.ios_mac/bbq.xcodeproj</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>867c210f-ab6b-49c3-a926-6eeb1f983abf++7604</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.subversion</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>867c210f-ab6b-49c3-a926-6eeb1f983abf++7604</string>
+			<key>IDESourceControlWCCName</key>
+			<string>projects</string>
+		</dict>
+	</array>
+</dict>
+</plist>

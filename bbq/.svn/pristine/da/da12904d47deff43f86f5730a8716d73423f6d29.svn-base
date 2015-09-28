@@ -1,0 +1,60 @@
+//
+//  EatingRoleData.h
+//  TravelDemo
+//
+//  Created by kids on 15/8/24.
+//
+//
+
+#ifndef __TravelDemo__EatingRoleData__
+#define __TravelDemo__EatingRoleData__
+
+#include <stdio.h>
+#include "cocos2d.h"
+//#include "CEatingRoleBasic.h"
+USING_NS_CC;
+
+
+enum EATING_SCENE_STATE
+{
+    ESS_PICKING,
+    ESS_EATING
+};
+
+enum EATING_ROLE_INDEX
+{
+    Guest04 = 0,
+    Guest05,
+    Guest08,
+    MAX_ROLE_NUM
+};
+
+extern const char* EATING_ROLE_MEMBERS_NAMES[EATING_ROLE_INDEX::MAX_ROLE_NUM];
+
+class EatingRoleData
+{
+public:
+    EatingRoleData();
+    ~EatingRoleData();
+    
+    static EatingRoleData* getInstance();
+    void resetRoleIDs();
+    
+    void saveRoleID(int _index, int _roleID);
+    //void saveRoleIDs(CEatingRoleBasic* _arr[]);
+    
+    void setSceneState(int _sceneState);
+    int getSceneState();
+    
+    //用于设置EatingRole的状态,通过_touch可以判断，点击是否在判定区域内，在哪个人物的判定区内。这样人物的逻辑判断就都可以放在这个函数里，场景只需要为其传送触摸状态和食物信息
+    //void setEatingRoleState(Touch* _touch, float _foodScorebool, bool is_touch_ended);
+    
+private:
+    static EatingRoleData* m_EatingRoleData;
+    int m_roleID[4];    //一一对应从一到四的四个角色的位置，值为-1时说明此时位置上没有人
+    
+    int m_sceneState;   //用于标识此时是选人场景还是吃饭场景，用于较色类的两种场景下的实现
+//    Vector<CEatingRoleBasic*>  m_EatingRoles;
+};
+
+#endif /* defined(__TravelDemo__EatingRoleData__) */

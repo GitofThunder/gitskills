@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with TexturePacker http://www.codeandweb.com/texturepacker-->
+<!-- $TexturePacker:SmartUpdate:2cae769a9c4b338856b9a8a5117c8fa8:b629ab39e0ac3db022c4e24d9ff11835:1416c5aa62534d3e240efb8820498a1c$ -->
+<TextureAtlas imagePath="Guest01.pvr.ccz">
+    <SubTexture name="G01_body" x="2" y="2" width="460" height="419"/>
+    <SubTexture name="G01_ear" x="1330" y="184" width="129" height="59"/>
+    <SubTexture name="G01_ear02" x="1141" y="245" width="128" height="70"/>
+    <SubTexture name="G01_eye" x="555" y="333" width="166" height="75"/>
+    <SubTexture name="G01_eyeball" x="1701" y="149" width="21" height="21"/>
+    <SubTexture name="G01_eyeball02" x="1271" y="292" width="21" height="21"/>
+    <SubTexture name="G01_eyeball03" x="1271" y="269" width="21" height="21"/>
+    <SubTexture name="G01_eyelid01" x="2533" y="300" width="181" height="90"/>
+    <SubTexture name="G01_eyelid02" x="2533" y="208" width="181" height="90"/>
+    <SubTexture name="G01_eyelid03" x="2465" y="116" width="181" height="90"/>
+    <SubTexture name="G01_eyelid04" x="2282" y="149" width="181" height="90"/>
+    <SubTexture name="G01_eyelid05" x="2099" y="149" width="181" height="90"/>
+    <SubTexture name="G01_eyelid06" x="1916" y="149" width="181" height="90"/>
+    <SubTexture name="G01_eyelid07" x="1733" y="149" width="181" height="90"/>
+    <SubTexture name="G01_eyelid08" x="1130" y="317" width="181" height="90"/>
+    <SubTexture name="G01_eyelid09" x="947" y="325" width="181" height="90"/>
+    <SubTexture name="G01_eyelid10" x="764" y="326" width="181" height="90"/>
+    <SubTexture name="G01_face" x="464" y="2" width="209" height="329"/>
+    <SubTexture name="G01_fork" x="723" y="326" width="39" height="91"/>
+    <SubTexture name="G01_hair" x="2041" y="241" width="241" height="136"/>
+    <SubTexture name="G01_hand" x="2358" y="241" width="54" height="112"/>
+    <SubTexture name="G01_hand02" x="1461" y="184" width="86" height="59"/>
+    <SubTexture name="G01_hateface" x="881" y="2" width="204" height="288" frameX="0" frameY="0" frameWidth="204" frameHeight="322"/>
+    <SubTexture name="G01_hotface" x="675" y="2" width="204" height="322"/>
+    <SubTexture name="G01_knife" x="464" y="333" width="18" height="82"/>
+    <SubTexture name="G01_leg" x="1978" y="241" width="61" height="140"/>
+    <SubTexture name="G01_mouth01" x="2338" y="356" width="27" height="47"/>
+    <SubTexture name="G01_mouth02" x="2307" y="356" width="29" height="52"/>
+    <SubTexture name="G01_mouth03" x="2284" y="241" width="72" height="113"/>
+    <SubTexture name="G01_mouth04" x="1978" y="383" width="68" height="36"/>
+    <SubTexture name="G01_mouth05" x="2284" y="356" width="21" height="54"/>
+    <SubTexture name="G01_mouth06" x="2648" y="116" width="44" height="73"/>
+    <SubTexture name="G01_mouth07" x="881" y="292" width="68" height="31"/>
+    <SubTexture name="G01_mouth08" x="2414" y="351" width="43" height="69"/>
+    <SubTexture name="G01_mouth09" x="1549" y="177" width="111" height="62"/>
+    <SubTexture name="G01_mouth10" x="2414" y="241" width="117" height="108"/>
+    <SubTexture name="G01_mouth11" x="2048" y="379" width="41" height="41"/>
+    <SubTexture name="G01_nose" x="1271" y="245" width="40" height="22"/>
+    <SubTexture name="G01_redface" x="951" y="292" width="188" height="23"/>
+    <SubTexture name="G01_sourface" x="1508" y="2" width="191" height="173" frameX="-31" frameY="-21" frameWidth="255" frameHeight="217"/>
+    <SubTexture name="lizi_bad" x="1330" y="2" width="176" height="180"/>
+    <SubTexture name="lizi_hot1" x="2304" y="2" width="477" height="112"/>
+    <SubTexture name="lizi_hot2" x="1701" y="2" width="601" height="145"/>
+    <SubTexture name="lizi_hot3" x="1313" y="245" width="663" height="175"/>
+    <SubTexture name="lizi_like" x="1662" y="177" width="69" height="60"/>
+    <SubTexture name="lizi_overeat" x="484" y="333" width="69" height="77"/>
+    <SubTexture name="lizi_star" x="1087" y="245" width="42" height="43"/>
+    <SubTexture name="lizi_worse" x="1087" y="2" width="241" height="241" frameX="-3" frameY="-3" frameWidth="251" frameHeight="251"/>
+</TextureAtlas>

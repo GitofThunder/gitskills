@@ -1,0 +1,97 @@
+//
+//  BBQChooseLayer.h
+//  testFridge
+//
+//  Created by kids on 15/8/27.
+//
+//
+
+#ifndef __testFridge__BBQChooseLayer__
+#define __testFridge__BBQChooseLayer__
+
+#include <stdio.h>
+#include "cocos2d.h"
+#include "DBCCFactory.h"
+#include "BBQChoosingRole.h"
+USING_NS_DB;
+USING_NS_CC;
+
+
+class BBQChooseLayer : public Layer
+{
+public:
+    CREATE_FUNC(BBQChooseLayer);
+    bool init();
+    static Scene* createScene();
+    BBQChooseLayer();
+    ~BBQChooseLayer();
+    
+    void addBackGround();
+    
+    void addTouch();
+    bool onTouchBegan(Touch* _touch, Event* _event);
+    void onTouchMoved(Touch* _touch, Event* _event);
+    void onTouchEnded(Touch* _touch, Event* _event);
+    void onTouchCancelled(Touch* _touch, Event* _event);
+    
+    void calcLength();
+    
+    void addChoosingLayer();
+    
+    void handleMoveOut();
+    void handleMoveIn();
+    
+    void ChoosingLayerAppear();
+    void ChoosingLayerDisappear();
+    
+    void afterTouchLayerMoved(Touch* _touch);      //用于选项层左右移动后的缓动效果实现
+    void countTime(float dt);                      //记录触摸时间的定时器相应函数
+    
+    //这个到时候要删掉，只是测试用
+    void addLabel();
+    void addButton();
+    void ButtonCallBack(Ref* ref);
+    
+    Rect GetArmatureRect(DBCCArmatureNode* temp);
+    
+    void ChangeLayer();
+    
+private:
+    Layer* m_choosing_layer;     //选择区域的层，可以在上面加node和background
+    Vector<BBQChoosingRole*> m_choosing_nodes;    //用于保存选择区域的node的数组
+    Vector<BBQChoosingRole*> m_chosen_nodes;       //用于保存已经被选择的node数组
+    
+    //跟被选择的node在choosingLayer中的位置有关的数据成员
+    float m_max_length;         //m_choosing_layer可以移动的最大位置
+    float m_min_length;         //m_choosing_layer可以移动的最小
+    float m_interval_length;    //每个node之间间隔的长度
+    float m_node_length;        //node的宽度
+    float m_begin_pos_x;        //第一个node在choosingLayer中的位置
+    Size visibleSize;
+    const int NUM_NODE;         //选择区域的node的数量
+    const float NODE_SPEED;     //node的移动速度
+    const float LAYER_SPEED;    //layer的移动速度
+    
+    int m_choosing_index;                //用于保存选择区域被点击的node的索引,为-1时，什么都没点中
+    int m_chosen_index;                  //用于保存选择区域外被点击的node的索引,为-1时，什么都没点中
+    
+    /*用于记录选项层中的node被点击了几次，第一次点击的时候并不将node移出，切点中之后左右移动可以使选择层左右移动；
+     *第一次点击时，当touch的位置高于限定位置时，node被拖出
+     *第二次点击时才将node移出。*/
+    int m_clicked_times;
+    
+    bool m_is_in_choosing_layer;      //用于标记点击是在选择层里还是在选择层外
+    
+    int m_countTime;        //用于选项层缓动，功能是记录触摸的时间
+    
+    //仅测试用
+    Vector<Label*> m_labels;
+    std::vector<int> m_pos_label_index;         //用于记录被选中的元素被拖动到了那个Label处，由于被选中元素只有四个label处可以停留，所以只需要保存label的索引即可以保存被选元素在改变所停靠的label之前的位置。
+    
+    bool m_isInHead;     //用于判断点击是否在头部
+    void searchForHead(float dt);
+    Touch* m_touch;
+    BBQChoosingRole* m_temp;
+};
+
+#endif /* defined(__testFridge__BBQChooseLayer__) */

@@ -1,0 +1,131 @@
+//
+//  EatingRoleData.cpp
+//  TravelDemo
+//
+//  Created by kids on 15/8/24.
+//
+//
+
+#include "EatingRoleData.h"
+
+const char* EATING_ROLE_MEMBERS_NAMES[EATING_ROLE_INDEX::MAX_ROLE_NUM] =
+{
+    "Guest04",
+    "Guest05",
+};
+
+
+EatingRoleData* EatingRoleData::m_EatingRoleData = nullptr;
+
+EatingRoleData::EatingRoleData()
+{
+    for (int i = 0; i < sizeof(m_roleID)/sizeof(int); ++i) {
+        m_roleID[i] = -1;
+    }
+}
+
+EatingRoleData::~EatingRoleData()
+{
+    delete m_EatingRoleData;
+}
+
+EatingRoleData* EatingRoleData::getInstance()
+{
+    if (!m_EatingRoleData) {
+        m_EatingRoleData = new EatingRoleData();
+    }
+    
+    return m_EatingRoleData;
+}
+
+void EatingRoleData::resetRoleIDs()
+{
+    for (int i = 0; i < sizeof(m_roleID)/sizeof(int); ++i) {
+        m_roleID[i] = -1;
+    }
+}
+
+void EatingRoleData::saveRoleID(int _index, int _roleID)
+{
+    if (_index >= sizeof(m_roleID)/sizeof(int)) {
+        log("_index is bigger than the size of array m_roleID");
+    }
+    m_roleID[_index] = _roleID;
+}
+
+//void EatingRoleData::saveRoleIDs(CEatingRoleBasic* _arr[])
+//{
+//    for (int i = 0; i < sizeof(m_roleID)/sizeof(int); ++i) {
+//        if (_arr[i]) {
+//            m_roleID[i] = _arr[i]->getRoleID();
+//        }
+//    }
+//}
+
+void EatingRoleData::setSceneState(int _sceneState)
+{
+    m_sceneState = _sceneState;
+}
+
+
+int EatingRoleData::getSceneState()
+{
+    return m_sceneState;
+}
+
+//is_touch_ended用于判断此时触摸事件是否终止了
+//void EatingRoleData::setEatingRoleState(Touch* _touch, float _foodScore, bool is_touch_ended)
+//{
+//    auto _pos_touch = _touch->getLocation();
+//    int _roles_index = 0;
+//    if(!is_touch_ended)
+//    {
+//        //判断点击在不在某个判定区域，在的话播ERS_WANT，不在的话播ERS_WAIT
+//        for (; _roles_index < m_EatingRoles.size(); ++_roles_index)
+//        {
+//            if (m_EatingRoles.at(_roles_index)->checkTouchPoint(_pos_touch))
+//            {
+//                if (_foodScore > 0)
+//                {
+//                    if (m_EatingRoles.at(_roles_index)->getState() != EATING_ROLE_STATE::ERS_WANT)
+//                    {
+//                        m_EatingRoles.at(_roles_index)->setState(EATING_ROLE_STATE::ERS_WANT);
+//                    }
+//                }
+//                else
+//                {
+//                    if (m_EatingRoles.at(_roles_index)->getState() != EATING_ROLE_STATE::ERS_NOT_WANT)
+//                    {
+//                        m_EatingRoles.at(_roles_index)->setState(EATING_ROLE_STATE::ERS_NOT_WANT);
+//                    }
+//                }
+//            }
+//            else
+//            {
+//                if (m_EatingRoles.at(_roles_index)->getState() != EATING_ROLE_STATE::ERS_WAIT)
+//                {
+//                    m_EatingRoles.at(_roles_index)->setState(EATING_ROLE_STATE::ERS_WAIT);
+//                }
+//            }
+//        }
+//    }
+//    else
+//    {  //已经结束触摸时间，判断是否要播ERS_EATING
+//        for (; _roles_index < m_EatingRoles.size(); ++_roles_index)
+//        {
+//            if (m_EatingRoles.at(_roles_index)->checkTouchPoint(_pos_touch))
+//            {
+//                if (m_EatingRoles.at(_roles_index)->getState() != EATING_ROLE_STATE::ERS_EATING) {
+//                    m_EatingRoles.at(_roles_index)->setState(EATING_ROLE_STATE::ERS_EATING);
+//                }
+//            }
+//            else
+//            {
+//                if (m_EatingRoles.at(_roles_index)->getState() != EATING_ROLE_STATE::ERS_DEFAULT)
+//                {
+//                    m_EatingRoles.at(_roles_index)->setState(EATING_ROLE_STATE::ERS_DEFAULT);
+//                }
+//            }
+//        }
+//    }
+//}

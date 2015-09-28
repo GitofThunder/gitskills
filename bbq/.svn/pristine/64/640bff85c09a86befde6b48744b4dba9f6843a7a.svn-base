@@ -1,0 +1,758 @@
+//
+//  FruitCutNinjaScene.cpp
+//  RockChipmunk2D
+//
+//  Created by ChildhoodAndy on 14-4-16.
+//
+//
+
+#include "CutScene.h"
+#include "Food.h"
+#include "FoodCut.h"
+#include "FoodMaterial.h"
+#include "GlobalData.h"
+#include "GlobalFunction.h"
+#include "HelloWorldScene.h"
+#include "PEShapeCache_X3_0.h"
+#include "PolygonSprite.h"
+#include "PRFilledPolygon.h"
+
+enum EM_CUTSCENE_Z
+{
+    CSZ_BACKGROUND = 0,
+    CSZ_SCROLL,
+    CSZ_PANZI,
+    CSZ_FOOD,
+    CSZ_OVER,
+    CSZ_UI,
+    CSZ_MAX
+};
+
+#define CONTENT_HEIGHT  300
+Vec2 PANZI_POSITION[5];
+
+CCutScene::CCutScene() :
+m_pBottomBtn(NULL),
+m_bShowBottom(false),
+m_bBtnClicked(false),
+m_bEnableScroll(false),
+m_lTouchBeginTime(0),
+_blade(NULL),
+m_bFoodTouched(false),
+m_nTouchedIndex(0),
+m_nTouchedPanzi(0),
+m_pCurTouchedFood(NULL),
+m_bDraged(false),
+m_bMoved(false),
+m_bHasFood(false),
+m_nSliceCount(0),
+m_lLastSlice(0)
+{
+    _blades.clear();
+    for (int i = 0; i < 5; i++)
+    {
+        m_aFoods[i] = NULL;
+    }
+    m_vCutFoods.clear();
+}
+
+CCutScene::~CCutScene()
+{
+    _eventDispatcher->removeEventListenersForTarget(this);
+}
+
+Scene* CCutScene::createScene()
+{
+	auto scene = Scene::createWithPhysics();
+	//scene->getPhysicsWorld()->setDebugDrawMask(PhysicsWorld::DEBUGDRAW_ALL);
+	scene->getPhysicsWorld()->setGravity(Point(0, -1));
+    scene->getPhysicsWorld()->setSpeed(8);
+    //scene->getPhysicsWorld()->set
+    
+	auto layer = CCutScene::create();
+	layer->setPhyWorld(scene->getPhysicsWorld());
+	scene->addChild(layer);
+	return scene;
+}
+
+bool CCutScene::init()
+{
+    if (!Layer::init())
+    {
+        return false;
+    }
+    
+    _visibleSize = Director::getInstance()->getVisibleSize();
+    _deltaRemainder = 0.0f;
+    _sliceTag = 1;
+    
+    createBackground();
+    createScrollLayer();
+    createBtnUI();
+    //加入封闭的盒子，用作墙壁
+    auto body = PhysicsBody::createEdgeBox(_visibleSize, PHYSICSBODY_MATERIAL_DEFAULT, 3);
+    auto wallNode = Node::create();
+    wallNode->setPosition(_visibleSize.width/2, _visibleSize.height/2);
+    wallNode->setPhysicsBody(body);
+    this->addChild(wallNode);
+    
+    auto touchListener = EventListenerTouchOneByOne::create();
+    touchListener->onTouchBegan = CC_CALLBACK_2(CCutScene::onTouchBegan, this);
+    touchListener->onTouchMoved = CC_CALLBACK_2(CCutScene::onTouchMoved, this);
+    touchListener->onTouchEnded = CC_CALLBACK_2(CCutScene::onTouchEnded, this);
+    touchListener->onTouchCancelled = CC_CALLBACK_2(CCutScene::onTouchCancelled, this);
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, this);
+    
+    auto texture = Director::getInstance()->getTextureCache()->addImage("streak.png");
+    
+    for (int i = 0; i < 3; i++)
+    {
+        Blade* blade = Blade::createWithMaximumPoint(50);
+        blade->setAutoDim(false);
+        blade->setTexture(texture);
+        
+        addChild(blade, 100);
+        _blades.pushBack(blade);
+    }
+    
+    //PEShapeCache::getInstance()->addBodysWithFile("pineapple.plist");
+    //auto body = PEShapeCache::getInstance()->getPhysicsBodyByName("pineapple");
+    
+    
+    //Point points[4] = {Point(-128 + 128, -128 + 128), Point(-128 + 128, 128 + 128), Point(128 + 128, 128 + 128), Point(128 + 128, -128 + 128)};
+    /*
+    Point points[9] =
+    {
+        Point(157,50), Point(119, 13), Point(54, 0), Point(7,36), Point(5, 78), Point(23,118), Point(170,252), Point(235, 244), Point(237,158)
+    };
+    */
+    
+    /*
+    Point points[4] =
+    {
+        Point(0, 0), Point(0, 200), Point(200, 200), Point(200, 0)
+    };
+    Vector2dVector vcPoints;
+    vcPoints.clear();
+    for (int i = 0; i < 4; i++)
+    {
+        vcPoints.push_back(Vector2d(points[i].x, points[i].y));
+    }
+    
+    PRFilledPolygon *filledPolygon = PRFilledPolygon::filledPolygonWithPointsAndTexture(vcPoints, "xiangjiao.png");
+    filledPolygon->setPhysicsBody(PhysicsBody::createPolygon(points, 4));
+    filledPolygon->setPosition(Vec2(_visibleSize.width, _visibleSize.height) / 2 + Vec2(-150, -150));
+    filledPolygon->getPhysicsBody()->setTag(_sliceTag);
+    filledPolygon->getPhysicsBody()->setGravityEnable(false);
+    addChild(filledPolygon, 80);
+    
+     */
+    for (int i = 0; i < PARTICLE_COUNT; i++)
+    {
+        m_pEmitter[i] = ParticleSystemQuad::create("pineapple_splurt.plist");
+        this->addChild(m_pEmitter[i], 100);
+        m_pEmitter[i]->setAutoRemoveOnFinish(false);
+        m_pEmitter[i]->setDuration(0.1f);
+        m_pEmitter[i]->setScale(1.5f);
+    }
+    
+    //本DEMO要做成一个切水果原型，尚未完成:)
+    scheduleUpdate();
+    return true;
+}
+
+void CCutScene::createBackground()
+{
+    
+    Point points[4] =
+    {
+        Point(0, 0), Point(0, 2048), Point(2048, 2048), Point(2048, 0)
+    };
+    Vector2dVector vcPoints;
+    vcPoints.clear();
+    for (int i = 0; i < 4; i++)
+    {
+        vcPoints.push_back(Vector2d(points[i].x, points[i].y));
+    }
+    
+    PRFilledPolygon *filledPolygon = PRFilledPolygon::filledPolygonWithPointsAndTexture(vcPoints, "daanban.png");
+    //filledPolygon->setPhysicsBody(PhysicsBody::createPolygon(points, 4));
+    filledPolygon->setPosition(Vec2::ZERO + Vec2(0, (1536 - 2048) / 2));
+    addChild(filledPolygon, 80);
+}
+
+void CCutScene::createScrollLayer()
+{
+    Size visibleSize = Director::getInstance()->getVisibleSize();
+    
+    m_v2BottonBtnHide = Vec2(visibleSize.width, 0) + Vec2(-100, 100);
+    m_v2BottomBtnShow = m_v2BottonBtnHide + Vec2(0, 200);
+    
+    m_v2ScrollHide = Vec2::ZERO + Vec2(0, -CONTENT_HEIGHT);
+    m_v2ScrollShow = Vec2::ZERO;
+    
+    //首先创建scrollView
+    m_pContentLayer = Layer::create();//创建scrollView中的容器层
+    m_pContentLayer->setPosition(Point::ZERO);
+    m_pContentLayer->setAnchorPoint(Point::ZERO);
+    m_pContentLayer->setContentSize(Size(3000, CONTENT_HEIGHT));//设置容器层大小
+    
+    m_pScrollView = ScrollView::create(Size(visibleSize.width, CONTENT_HEIGHT), m_pContentLayer);//创建scrollView，显示窗口大小为(400,300)
+    m_pScrollView->setDelegate(this);//设置委托
+    m_pScrollView->setDirection(ScrollView::Direction::HORIZONTAL);//设置滚动方向为水平
+    m_pScrollView->setPosition(m_v2ScrollHide);
+    this->addChild(m_pScrollView, CSZ_SCROLL);
+    m_pScrollView->setContentOffset(Vec2(0, 0), false);
+    
+    int nIndex = 0;
+    for (int i = 0; i < 5; i++)
+    {
+        CFood* pFood = CGlobalData::getSingleton()->getPanziFood(i);
+        if (pFood == NULL) continue;
+        if (pFood->getFoodType() == FT_ORIGIN)
+        {
+            addSprite("panzi.png", m_pContentLayer, Vec2(visibleSize.width - 200 - 400 * nIndex, 150), 0, Vec2::ANCHOR_MIDDLE);
+            
+            std::vector<int> vMaterial = pFood->getMaterials();
+            MATERIAL_ID id = (MATERIAL_ID)vMaterial[0];
+            if (id >= MI_MAX) return;
+            std::string sName = MATERIAL_CONFIG[id].sName;
+            CFoodMaterial* pFoodMaterial = CFoodMaterial::create(sName.c_str());
+            if (pFoodMaterial != NULL)
+            {
+                m_pContentLayer->addChild(pFoodMaterial, 1);
+                pFoodMaterial->setPosition(Vec2(visibleSize.width - 200 - 400 * nIndex, 150));
+                std::vector<int> vMaterials;
+                vMaterials.clear();
+                vMaterials.push_back(id);
+                int aTastes[2] = {0, 0};
+                pFoodMaterial->initProperty(FT_ORIGIN, vMaterials, aTastes, pFood->getPanziIndex());
+            }
+            
+            m_aFoods[nIndex ++] = pFoodMaterial;
+        }
+        
+        PANZI_POSITION[i] = Vec2(visibleSize.width - 200 - 400 * i, 150);
+    }
+}
+
+void CCutScene::createBtnUI()
+{
+    Size visibleSize = Director::getInstance()->getVisibleSize();
+    m_pBottomBtn = createMenuItemSprite("ButtonHome1.png", CC_CALLBACK_1(CCutScene::bottomBtnCallback, this), m_v2BottonBtnHide);
+    
+    MenuItem* pItem = createMenuItemSprite("ButtonHome1.png", CC_CALLBACK_1(CCutScene::backCallback, this), Vec2(100, visibleSize.height - 100));
+    
+    Menu* pMenu = Menu::create(m_pBottomBtn, pItem, NULL);
+    if (pMenu != NULL)
+    {
+        this->addChild(pMenu, CSZ_UI);
+        pMenu->setPosition(Vec2::ZERO);
+    }
+}
+
+void CCutScene::update(float dt)
+{
+    if (_blade && _blade->getPath().size() > 3)
+    {
+        _deltaRemainder += dt * 60 * 1.2f;
+        int pop = (int)roundf(_deltaRemainder);
+        _deltaRemainder -= pop;
+        _blade->pop(pop);
+    }
+}
+
+bool CCutScene::onTouchBegan(Touch *touch, Event *unused_event)
+{
+    Vec2 location = touch->getLocation();
+
+    if (m_bShowBottom && location.y < 300)
+    {
+        m_bEnableScroll = true;
+        scrollLayerTouchBegin(touch);
+    }
+    else
+    {
+        _startPoint = location;
+        _endPoint = location;
+        
+        for (Blade* blade : _blades)
+        {
+            if (blade->getPath().size() == 0)
+            {
+                _blade = blade;
+                _blade->push(location);
+                break;
+            }
+        }
+    }
+    return true;
+}
+
+void CCutScene::onTouchMoved(Touch *touch, Event *unused_event)
+{
+    if (m_bEnableScroll)
+    {
+        scrollLayerTouchMove(touch);
+    }
+    else
+    {
+        Point location = touch->getLocation();
+        _endPoint = location;
+        
+        if ((_startPoint - _endPoint).getLength() > 25)
+        {
+            _startPoint = _endPoint;
+        }
+        
+        _blade->push(location);
+        
+        m_v2Delta = touch->getLocation() - touch->getPreviousLocation();
+        auto func = CC_CALLBACK_3(CCutScene::slice, this);
+        _world->rayCast(func, touch->getPreviousLocation(), touch->getLocation(), nullptr);
+    }
+}
+
+void CCutScene::onTouchEnded(Touch *touch, Event *unused_event)
+{
+    if (m_bEnableScroll)
+    {
+        scrollLayerTouchEnd(touch);
+    }
+    else
+    {
+        _blade->setDim(true);
+    }
+    //TODO:排查在哪里置位
+    m_bEnableScroll = false;
+    
+    m_bFoodTouched = false;
+    m_bMoved = false;
+    m_bDraged = false;
+
+}
+
+void CCutScene::onTouchCancelled(Touch *touch, Event *unused_event)
+{
+    if (m_bEnableScroll)
+    {
+        scrollLayerTouchCancel(touch);
+    }
+    else
+    {
+        _blade->setDim(true);
+    }
+    m_bEnableScroll = false;
+}
+
+void CCutScene::scrollLayerTouchBegin(Touch *touch)
+{
+    m_pScrollView->setScrollEnabled(false);
+    m_bDraged = false;
+    
+    Vec2 v2Local = m_pContentLayer->convertTouchToNodeSpace(touch);
+    m_lTouchBeginTime = getCurTime();
+    for (int i = 0; i < FOOD_COUNT; i++)
+    {
+        CFoodMaterial* pFood = m_aFoods[i];
+        if (pFood == NULL) continue;
+        
+        if (pFood->getBoundingBox().containsPoint(v2Local))
+        {
+            m_bFoodTouched = true;
+            //m_pCurTouchedFood = pFood;
+            m_nTouchedPanzi = i;
+            return;
+        }
+    }
+    
+    m_pScrollView->setScrollEnabled(true);
+}
+
+void CCutScene::scrollLayerTouchMove(Touch *touch)
+{
+    Vec2 v2Delta = touch->getDelta();
+    
+    if (m_bFoodTouched)
+    {
+        long long lCurTime = getCurTime();
+        if (lCurTime - m_lTouchBeginTime > 500)
+        {
+            if (!m_bMoved || m_bDraged)
+            {
+                // 拖起食材
+                dragFood(touch);
+            }
+        }
+        else
+        {
+            Vec2 v2Moved = touch->getLocation() - touch->getStartLocation();
+            if (v2Moved.length() >= 10.0f)
+            {
+                m_bMoved = true;
+                if (!isSlideHorizontal(touch))
+                {
+                    // 拖起食材
+                    if (!m_pScrollView->getScrollEnabled())
+                        dragFood(touch);
+                }
+                else
+                {
+                    if (!m_bDraged)
+                        m_pScrollView->setScrollEnabled(true);
+                }
+            }
+        }
+    }
+    else
+    {
+        
+    }
+}
+
+void CCutScene::scrollLayerTouchEnd(Touch *touch)
+{
+    m_pScrollView->setScrollEnabled(true);
+    
+    if (m_bFoodTouched)
+    {
+        m_bFoodTouched = false;
+        
+        if (m_pCurTouchedFood == NULL || !m_bDraged) return;
+            
+        Vec2 v2Pt = convertTouchToNodeSpace(touch);
+        //如果在滑动框 飞回盘子
+        if (v2Pt.y <= CONTENT_HEIGHT || m_bHasFood)
+        {
+            if (m_nTouchedPanzi < 0 || m_nTouchedPanzi >= 5) return;
+            if (m_aFoods[m_nTouchedPanzi] == NULL) return;
+            
+            float fSpeed = 1000;
+            Vec2 v2Dest = convertToNodeSpace(m_pContentLayer->convertToWorldSpace(m_aFoods[m_nTouchedPanzi]->getPosition()));
+            float fDis = m_pCurTouchedFood->getPosition().distance(v2Dest);
+            m_pCurTouchedFood->runAction(Sequence::create(MoveTo::create(fDis / fSpeed, v2Dest),
+                                                          CallFunc::create([this](){
+                if (m_pCurTouchedFood != NULL)
+                {
+                    m_pCurTouchedFood->removeFromParent();
+                    m_pCurTouchedFood = NULL;
+                }
+                log("m_nTouchedPanzi is %d", m_nTouchedPanzi);
+                m_aFoods[m_nTouchedPanzi]->setVisible(true);
+                m_nTouchedPanzi = -1;
+            }), NULL));
+        }
+        else    //如果不在 创建并放置在案板上，m_aFoods[i]删除？
+        {
+
+            if (m_aFoods[m_nTouchedPanzi] != NULL)
+            {
+                m_aFoods[m_nTouchedPanzi]->removeFromParent();
+                m_aFoods[m_nTouchedPanzi] = NULL;
+            }
+            std::vector<int> vMaterials = m_pCurTouchedFood->getMaterials();
+            createPolygonFood(touch, (MATERIAL_ID)vMaterials[0], m_nTouchedPanzi);
+            
+            if (m_pCurTouchedFood != NULL)
+            {
+                m_pCurTouchedFood->removeFromParent();
+                m_pCurTouchedFood = NULL;
+            }
+            m_nTouchedPanzi = -1;
+            m_bHasFood = true;
+        }
+        
+    }
+    else
+    {
+        if (m_pCurTouchedFood != NULL)
+        {
+            m_pCurTouchedFood->removeFromParent();
+            m_pCurTouchedFood = NULL;
+        }
+    }
+    
+    m_bDraged = false;
+}
+
+void CCutScene::scrollLayerTouchCancel(Touch *touch)
+{
+    
+}
+
+void CCutScene::createPolygonFood(Touch *touch, MATERIAL_ID id, int nTouchedIndex)
+{
+    if (touch == NULL) return;
+    /*
+    if (id < 0 || id > MI_MAX) return;
+    int nSideLen = MATERIAL_CONFIG[id].nSideLen;
+    Point points[4] =
+    {
+        Point(0, 0), Point(0, nSideLen), Point(nSideLen, nSideLen), Point(nSideLen, 0)
+    };
+    Vector2dVector vcPoints;
+    vcPoints.clear();
+    for (int i = 0; i < 4; i++)
+    {
+        vcPoints.push_back(Vector2d(points[i].x, points[i].y));
+    }
+    std::string sName = MATERIAL_CONFIG[id].sName;
+    PRFilledPolygon *filledPolygon = PRFilledPolygon::filledPolygonWithPointsAndTexture(vcPoints, sName.c_str());
+    filledPolygon->setPhysicsBody(PhysicsBody::createPolygon(points, 4));
+    filledPolygon->setPosition(convertTouchToNodeSpace(touch));
+    filledPolygon->getPhysicsBody()->setTag(_sliceTag);
+    filledPolygon->getPhysicsBody()->setGravityEnable(false);
+    addChild(filledPolygon, 80);
+    */
+    
+    CFoodCut* pFood = CFoodCut::create(id, nTouchedIndex);
+    if (pFood != NULL)
+    {
+        pFood->setPosition(convertTouchToNodeSpace(touch));
+        pFood->getPhysicsBody()->setTag(_sliceTag);
+        pFood->getPhysicsBody()->setGravityEnable(false);
+        addChild(pFood, 80);
+        
+        m_vCutFoods.push_back(pFood);
+    }
+}
+
+void CCutScene::dragFood(Touch *touch)
+{
+    m_bDraged = true;
+    if (m_pCurTouchedFood == NULL)
+    {
+        if (m_nTouchedPanzi < 0 || m_nTouchedIndex >= 5) return;
+        if (m_aFoods[m_nTouchedPanzi] == NULL) return;
+        
+        std::vector<int> vMaterial = m_aFoods[m_nTouchedPanzi]->getMaterials();
+        MATERIAL_ID id = (MATERIAL_ID)vMaterial[0];
+        if (id >= MI_MAX) return;
+        std::string sName = MATERIAL_CONFIG[id].sName;
+        m_pCurTouchedFood = CFoodMaterial::create(sName.c_str());
+        if (m_pCurTouchedFood != NULL)
+        {
+            this->addChild(m_pCurTouchedFood, CSZ_OVER);
+            std::vector<int> vMaterials;
+            vMaterials.clear();
+            vMaterials.push_back(id);
+            int aTastes[2] = {0, 0};
+            m_pCurTouchedFood->initProperty(FT_ORIGIN, vMaterials, aTastes);
+            m_pCurTouchedFood->setPanziIndex(m_aFoods[m_nTouchedPanzi]->getPanziIndex());
+        }
+        
+        m_aFoods[m_nTouchedPanzi]->setVisible(false);
+    }
+    
+    m_pCurTouchedFood->setPosition(convertTouchToNodeSpace(touch));
+}
+
+bool CCutScene::slice(PhysicsWorld &world, const PhysicsRayCastInfo& info, void *data)
+{
+    log("slice called %f, %f, %lld", info.contact.x, info.contact.y, m_lLastSlice);
+    if (info.shape->getBody()->getTag() != _sliceTag)
+    {
+        return true;
+    }
+    
+    if (getCurTime() - m_lLastSlice <= 500) return true;
+    m_v2Delta.normalize();
+    Vec2 v2Start = info.contact - m_v2Delta * 100;
+    Vec2 v2End = info.contact + m_v2Delta * 500;
+    
+    if (!info.shape->containsPoint(v2Start) && !info.shape->containsPoint(v2End))
+    {
+        Vec2 normal = v2End - v2Start;
+        normal = normal.getPerp().getNormalized();
+        float dist = v2Start.dot(normal);
+        
+        clipPoly(dynamic_cast<PhysicsShapePolygon*>(info.shape), normal, dist);
+        clipPoly(dynamic_cast<PhysicsShapePolygon*>(info.shape), -normal, -dist);
+        
+        Vec2 v2Direct = (v2End - v2Start).getNormalized();
+        Vec2 v2Tmp = Vec2::ZERO;
+        for (int i = 0; i < PARTICLE_COUNT; i++)
+        {
+            v2Tmp = info.contact + v2Direct * 80 * (i - 1);
+            if (!info.shape->containsPoint(v2Tmp))
+            {
+                continue;
+            }
+            else
+            {
+                m_pEmitter[i]->setPosition(v2Tmp);
+                m_pEmitter[i]->resetSystem();
+            }
+        }
+        
+        std::vector<CFoodCut*>::iterator it;
+        for (it = m_vCutFoods.begin(); it != m_vCutFoods.end(); it++)
+        {
+            CFoodCut* pTmp = *it;
+            if (pTmp == info.shape->getBody()->getNode())
+            {
+                m_vCutFoods.erase(it);
+                break;
+            }
+        }
+        
+        info.shape->getBody()->removeFromWorld();
+        info.shape->getBody()->getNode()->removeFromParent();
+        m_nSliceCount ++;
+        
+        m_lLastSlice = getCurTime();
+        
+        checkFoodSliced();
+    }
+    
+    return true;
+}
+
+void CCutScene::clipPoly(PhysicsShapePolygon* shape, Point normal, float distance)
+{
+    PhysicsBody* body = shape->getBody();
+    int count = shape->getPointsCount();
+    int pointsCount = 0;
+    Point* points = new Point[count + 1];
+    
+    Vector2dVector vcPoints;
+    vcPoints.clear();
+    Vector2d v2Point(0, 0);
+    
+    for (int i=0, j=count-1; i<count; j=i, ++i)
+    {
+        Point a = body->local2World(shape->getPoint(j));
+        float aDist = a.dot(normal) - distance;
+        
+        if (aDist < 0.0f)
+        {
+            points[pointsCount] = a;
+            ++pointsCount;
+        }
+        
+        Point b = body->local2World(shape->getPoint(i));
+        float bDist = b.dot(normal) - distance;
+        
+        if (aDist*bDist < 0.0f)
+        {
+            float t = std::fabs(aDist)/(std::fabs(aDist) + std::fabs(bDist));
+            Vec2 v2Tmp = a.lerp(b, t);
+            points[pointsCount] = v2Tmp;
+            ++pointsCount;
+        }
+    }
+    
+    Point center = PhysicsShape::getPolyonCenter(points, pointsCount);
+    
+    for (int i = 0; i < pointsCount; i++)
+    {
+        points[i] = body->world2Local(points[i]);
+        vcPoints.push_back(Vector2d(points[i].x, points[i].y));
+    }
+    
+    PhysicsBody* polyon = PhysicsBody::createPolygon(points, pointsCount);
+    
+    CFoodCut* pNode = (CFoodCut*)(body->getNode());
+    std::string sName = pNode->getTextureName();
+    //auto texture = Director::getInstance()->getTextureCache()->addImage("pineapple.png");
+    CFoodCut *filledPolygon = CFoodCut::create(sName.c_str(), vcPoints, pNode->getTouchedIndex());
+    filledPolygon->setPhysicsBody(polyon);
+    int nTmp = rand() % 50 + 50;
+    int nTmpRotate = rand() % 30 - 60;
+    filledPolygon->setPosition(body->getPosition());
+    //filledPolygon->setRotation(filledPolygon->getRotation() + nTmpRotate);
+    filledPolygon->getPhysicsBody()->setTag(_sliceTag);
+    filledPolygon->getPhysicsBody()->setGravityEnable(false);
+    
+    
+    polyon->setVelocity(body->getVelocityAtWorldPoint(center));
+    //polyon->setAngularVelocity(body->getAngularVelocity());
+    polyon->setTag(_sliceTag);
+    
+    float fMass = polyon->getMass();
+    float fV = 30;
+    float fImpulse = fMass * fV;
+    float fTmpX = (float)(Random() % 30) / 100.0f - 0.15f;
+    float fTmpY = (float)(rand() % 30) / 100.0f - 0.15f;
+    polyon->applyImpulse((normal + Vec2(fTmpX, fTmpY)) * -fImpulse);
+    polyon->setLinearDamping(0.8f);
+    addChild(filledPolygon, 80);
+    
+    m_vCutFoods.push_back(filledPolygon);
+    delete[] points;
+}
+
+void CCutScene::checkFoodSliced()
+{
+    if (m_nSliceCount >= 6)
+    {
+        //todo:暂时不能切,播放庆祝特效
+        
+        
+        m_nSliceCount = 0;
+        CFoodCut* pFood = NULL;
+        int nIndex = -1;
+        int nCount = m_vCutFoods.size();
+        for (int i = 0; i < nCount; i++)
+        {
+            pFood = m_vCutFoods[i];
+            if (pFood != NULL)
+            {
+                nIndex = pFood->getTouchedIndex();
+                Vec2 v2Dest = convertToNodeSpace(m_pContentLayer->convertToWorldSpace(PANZI_POSITION[nIndex]));
+                float fSpeed = 1200;
+                float fDis = pFood->getPosition().distance(v2Dest);
+                pFood->runAction(Sequence::create(DelayTime::create(0.08f * i),
+                                                  MoveTo::create(fDis / fSpeed, v2Dest),
+                                                  CallFunc::create([this, pFood, nCount](){
+                    pFood->removeFromParent();
+                    static int nTmp = 0;
+                    nTmp ++;
+                    if (nTmp >= nCount - 1)
+                    {
+                        nTmp = 0;
+                        //todo: 在盘子上创建碎食材
+                        
+                        
+                        
+                        
+                        
+                    }
+                }), NULL));
+            }
+        }
+        m_vCutFoods.clear();
+        m_bHasFood = false;
+    }
+}
+
+void CCutScene::bottomBtnCallback(Ref *pSender)
+{
+    if (m_bBtnClicked) return;
+    
+    float fTime = 0.4f;
+    if (m_bShowBottom)
+    {
+        m_pScrollView->runAction(Sequence::create(MoveTo::create(fTime, m_v2ScrollHide),
+                                                  CallFunc::create([this](){
+            m_bShowBottom = false;
+            m_bBtnClicked = false;
+        }), NULL));
+        m_pBottomBtn->runAction(MoveTo::create(fTime, m_v2BottonBtnHide));
+    }
+    else
+    {
+        m_pScrollView->runAction(Sequence::create(MoveTo::create(fTime, m_v2ScrollShow),
+                                                  CallFunc::create([this](){
+            m_bShowBottom = true;
+            m_bBtnClicked = false;
+        }), NULL));
+        m_pBottomBtn->runAction(MoveTo::create(fTime, m_v2BottomBtnShow));
+    }
+}
+
+void CCutScene::backCallback(Ref *pSender)
+{
+    //Director::getInstance()->replaceScene(CCutScene::createScene());
+}
+

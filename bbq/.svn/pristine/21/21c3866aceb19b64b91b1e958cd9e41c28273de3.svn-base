@@ -1,0 +1,756 @@
+#include "CutScene.h"
+#include "FoodMaterial.h"
+#include "Fridge.h"
+#include "GlobalFunction.h"
+#include "JuicingScene.h"
+#include "Kitchen.h"
+
+USING_NS_CC;
+
+#define KITCHEN_WIDTH   3500
+#define FRIDGE_FLOOR    6
+#define FOOD_FLY_SPEED  1500
+
+enum EM_KITCHEN_Z
+{
+    EKZ_BACK = 0,
+    EKZ_FRIDGE,
+    EKZ_DESK = EKZ_FRIDGE + 2 * FRIDGE_FLOOR,
+    EKZ_PANZI_BACK,
+    EKZ_PANZI_MIDDLE = EKZ_PANZI_BACK + 2,
+    EKZ_PANZI_FRONT = EKZ_PANZI_MIDDLE + 2,
+    EKZ_FRONT,
+    EKZ_MAX
+};
+
+int PANZI_ZORDER[PANZI_COUNT] = {EKZ_PANZI_BACK, EKZ_PANZI_BACK, EKZ_PANZI_MIDDLE, EKZ_PANZI_FRONT, EKZ_PANZI_FRONT};
+
+SToolConfig TOOL_CONFIG[5] =
+{
+    {"anban.png", Vec2(2150, 1020)},
+    {"shaokaojia.png", Vec2(2769, 1035)},
+    {"zhazhiji.png", Vec2(3270, 1140)},
+    {"shalawan.png", Vec2(3280, 768)},
+    {"zhuguo.png", Vec2(3200, 370)}
+};
+
+CPanzi::CPanzi() : m_nIndex(0), m_bHasFood(false)
+{
+    
+}
+
+CPanzi::~CPanzi()
+{
+    
+}
+
+CPanzi* CPanzi::create(const char *pszFileName)
+{
+    CPanzi* pRet = new (std::nothrow) CPanzi();
+    if (pRet && pRet->initWithFile(pszFileName))
+    {
+        pRet->autorelease();
+    }
+    else
+    {
+        CC_SAFE_DELETE(pRet);
+    }
+    
+    return pRet;
+}
+
+
+CKitchen::CKitchen() :
+m_bBtnClicked(false),
+m_bPanziFoodTouched(false),
+m_pSceneLayer(NULL),
+m_pUILayer(NULL),
+m_pFridge(NULL),
+m_eKitchenState(KS_NONE),
+m_pTouchedFood(NULL),
+m_pTouchedPanziFood(NULL),
+m_nTouchedPanziFood(-1),
+m_pCurTouchedFood(NULL)
+{
+    for (int i = 0; i < PANZI_COUNT; i++)
+    {
+        m_aPanzi[i] = NULL;
+    }
+    
+    for (int i = 0; i < 5; i++)
+    {
+        m_aTools[i] = NULL;
+    }
+    for (int i = 0; i < PANZI_FOOD_COUNT; i++)
+    {
+        m_aPanziFoods[i] = NULL;
+    }
+}
+
+CKitchen::~CKitchen()
+{
+    
+}
+
+Scene* CKitchen::createScene()
+{
+    auto scene = Scene::create();
+    
+    auto layer = CKitchen::create();
+    scene->addChild(layer);
+    return scene;
+}
+
+bool CKitchen::init()
+{
+    //////////////////////////////
+    // 1. super init first
+    if ( !Layer::init() )
+    {
+        return false;
+    }
+
+    createLayers();
+    initBackGround();
+    initDeskAndFridge();
+    initBtn();
+    
+    registerEventListener();
+    
+    m_eKitchenState = KS_GET;
+    
+    if (CGlobalData::getSingleton()->getSceneConvert() == SC_CUT2MAKE)
+    {
+        Size visibleSize = Director::getInstance()->getVisibleSize();
+        
+        float fX = KITCHEN_WIDTH - visibleSize.width;
+        m_pSceneLayer->setPosition(Vec2(-fX, 0));
+        
+        m_eKitchenState = KS_MAKE;
+    }
+    
+    schedule(schedule_selector(CKitchen::myUpdate));
+    return true;
+}
+
+void CKitchen::onExit()
+{
+    _eventDispatcher->removeEventListenersForTarget(this);
+    
+    Layer::onExit();
+}
+
+void CKitchen::createLayers()
+{
+    m_pSceneLayer = Layer::create();
+    if (m_pSceneLayer != NULL)
+    {
+        this->addChild(m_pSceneLayer, 0);
+        m_pSceneLayer->setPosition(Vec2::ZERO);
+    }
+    
+    m_pUILayer = Layer::create();
+    if (m_pUILayer != NULL)
+    {
+        this->addChild(m_pUILayer, 1);
+        m_pUILayer->setPosition(Vec2::ZERO);
+    }
+}
+
+void CKitchen::initBackGround()
+{
+    addSprite("kitchen_bj.png", m_pSceneLayer, Vec2(200, 0), EKZ_BACK, Vec2::ZERO);
+    
+    for (int i = 0; i < 5; i++)
+    {
+        m_aTools[i] = addSprite(TOOL_CONFIG[i].sToolTexture.c_str(), m_pSceneLayer, TOOL_CONFIG[i].v2Position, EKZ_BACK, Vec2::ANCHOR_MIDDLE);
+    }
+}
+
+void CKitchen::initDeskAndFridge()
+{
+    m_pFridge = CFridge::create();
+    if (m_pFridge != NULL)
+    {
+        m_pSceneLayer->addChild(m_pFridge, EKZ_FRIDGE);
+    }
+    
+    addSprite("kitchen_zhuozi.png", m_pSceneLayer, Vec2(1120, 0), EKZ_DESK, Vec2::ZERO);
+    
+    Vec2 avPos[5] = {Vec2(424, 420), Vec2(780, 420), Vec2(586, 280), Vec2(324, 144), Vec2(680, 144)};
+    for (int i = 0; i < PANZI_COUNT; i++)
+    {
+        //zorder
+        m_aPanzi[i] = addSelfSprite<CPanzi>("panzi.png", m_pSceneLayer, Vec2(1120, 0) + avPos[i], PANZI_ZORDER[i], Vec2::ANCHOR_MIDDLE);
+        m_aPanzi[i]->setTag(i + 1);
+    }
+    
+    CFood* pFood = NULL;
+    for (int i = 0; i < PANZI_FOOD_COUNT; i++)
+    {
+        pFood = CGlobalData::getSingleton()->createFoodByInfo(i);
+        if (pFood != NULL)
+        {
+            m_pSceneLayer->addChild(pFood, PANZI_ZORDER[i] + 1);
+            Vec2 v2Pos = m_aPanzi[i]->getPosition() + Vec2(0, 50);
+            pFood->setPosition(v2Pos);
+            m_aPanziFoods[i] = pFood;
+            
+            if (i < PANZI_COUNT)
+            {
+                m_aPanzi[i]->setHasFood(true);
+            }
+        }
+    }
+    
+    
+    /*
+    std::string sName = MATERIAL_CONFIG[id].sName;
+    CFoodMaterial* pFood = CFoodMaterial::create(sName.c_str());
+    if (pFood != NULL)
+    {
+        m_pSceneLayer->addChild(pFood, PANZI_ZORDER[nIndex] + 1);
+        Vec2 v2Pos = m_aPanzi[nIndex]->getPosition() + Vec2(0, 50);
+        pFood->setPosition(v2Pos);
+        pFood->setVisible(false);
+        std::vector<int> vMaterials;
+        vMaterials.clear();
+        vMaterials.push_back(m_pTouchedFood->getMaterialId());
+        int aTastes[2] = {0, 0};
+        pFood->initProperty(FT_ORIGIN, vMaterials, aTastes, nIndex);
+        
+        CGlobalData::getSingleton()->setPanziFood(nIndex, pFood);
+        m_aPanziFoods[nIndex] = pFood;
+        
+        m_aPanzi[nIndex]->setHasFood(true); //todo: 是否在这
+        
+        if (m_pTouchedFood!= NULL)
+        {
+            float fSpeed = FOOD_FLY_SPEED;
+            float fTime = m_pTouchedFood->getPosition().distance(v2Pos) / fSpeed;
+            m_pTouchedFood->runAction(Sequence::create(MoveTo::create(fTime, v2Pos),
+                                                       CallFunc::create([this, pFood](){
+                m_pTouchedFood->removeFromParent();
+                m_pTouchedFood = NULL;
+                pFood->setVisible(true);
+            }), NULL));
+        }
+    }
+    */
+    
+    
+    
+    
+    addSprite("fangpanzi.png", m_pSceneLayer, Vec2(1120, 0) + Vec2(1140, 300), EKZ_DESK, Vec2::ANCHOR_MIDDLE);
+}
+
+void CKitchen::initBtn()
+{
+    Size visibleSize = Director::getInstance()->getVisibleSize();
+    MenuItem* pHomeItem = createMenuItemSprite("ButtonHome1.png", CC_CALLBACK_1(CKitchen::menuHomeCallback, this), Vec2(150, visibleSize.height - 150));
+    MenuItem* pNextItem = createMenuItemSprite("CloseNormal.png", CC_CALLBACK_1(CKitchen::menuNextCallback, this), Vec2(visibleSize.width - 150, visibleSize.height - 150));
+    Menu* pMenu = Menu::create(pHomeItem, pNextItem, NULL);
+    m_pUILayer->addChild(pMenu);
+    pMenu->setPosition(Vec2::ZERO);
+}
+
+void CKitchen::registerEventListener()
+{
+    auto listener = EventListenerTouchOneByOne::create();
+    //listener->setSwallowTouches(true);
+    listener->onTouchBegan = CC_CALLBACK_2(CKitchen::onTouchBegan, this);
+    listener->onTouchMoved = CC_CALLBACK_2(CKitchen::onTouchMoved, this);
+    listener->onTouchEnded = CC_CALLBACK_2(CKitchen::onTouchEnded, this);
+    listener->onTouchCancelled = CC_CALLBACK_2(CKitchen::onTouchCancelled, this);
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
+    
+    cocos2d::EventListenerCustom* customEvt	= EventListenerCustom::create("dragFridgeFood", [this](EventCustom* evt){
+        SDragedFoodInfo info = *(SDragedFoodInfo*)(evt->getUserData());
+        Vec2 v2Global = info.v2Global;
+        MATERIAL_ID id = info.eId;
+        if (id >= MI_MAX) return;
+        std::string sName = MATERIAL_CONFIG[id].sName;
+
+            if (m_pTouchedFood == NULL)
+            {
+                m_pTouchedFood = addSelfSprite<CFridgeFood>(sName.c_str(), this, convertToNodeSpace(v2Global), EKZ_PANZI_FRONT, Vec2::ANCHOR_MIDDLE);
+                m_pTouchedFood->setMaterialId(id);
+                m_pTouchedFood->setScale(DRAG_SCALE);
+            }
+            m_pTouchedFood->setPosition(convertToNodeSpace(v2Global));
+    });
+    
+    cocos2d::EventListenerCustom* foodBackEvt = EventListenerCustom::create("endDragFoodBack", [this](EventCustom* evt){
+        SFoodBackInfo info = *(SFoodBackInfo*)(evt->getUserData());
+        Vec2 v2Dest = convertToNodeSpace(info.v2Dest);
+        float fSpeed = FOOD_FLY_SPEED;
+        float fDistance = v2Dest.distance(m_pTouchedFood->getPosition());
+        float fTime = fDistance / fSpeed;
+        m_pTouchedFood->runAction(Sequence::create(MoveTo::create(fTime, v2Dest),
+                                                   CallFunc::create([this](){ m_pTouchedFood->removeFromParent(); m_pTouchedFood = NULL; } ),
+                                                   CallFunc::create(info.func), NULL));
+    });
+    
+    cocos2d::EventListenerCustom* foodOutEvt = EventListenerCustom::create("endDragFoodOut", [this](EventCustom* evt){
+        Touch* pTouch = (Touch*)(evt->getUserData());
+        if (pTouch == NULL) return;
+        bool bIn = false;
+        Vec2 v2Pos = m_pSceneLayer->convertTouchToNodeSpace(pTouch);
+        for (int i = 0; i < PANZI_COUNT; i++)
+        {
+            if (m_aPanzi[i]->getBoundingBox().containsPoint(v2Pos))
+            {
+                bIn = true;
+                if (m_aPanzi[i]->getHasFood())
+                {
+                    //食物飞走
+                    flyOut(i);
+                }
+                putFoodIntoPanzi(i);
+                break;
+            }
+        }
+        
+        if (!bIn)
+        {
+            int nEmpty = 0;
+            bool bFind = false;
+            for (int i = 0; i < PANZI_COUNT; i++)
+            {
+                if (!m_aPanzi[i]->getHasFood())
+                {
+                    nEmpty = i;
+                    bFind = true;
+                    break;
+                }
+            }
+            if (!bFind)
+            {
+                nEmpty = PANZI_COUNT - 1;
+                //食物飞走
+                flyOut(nEmpty);
+            }
+            
+            putFoodIntoPanzi(nEmpty);
+        }
+    });
+    
+    Director::getInstance()->getEventDispatcher()->addEventListenerWithFixedPriority(customEvt, 1);
+    Director::getInstance()->getEventDispatcher()->addEventListenerWithFixedPriority(foodBackEvt, 1);
+    Director::getInstance()->getEventDispatcher()->addEventListenerWithFixedPriority(foodOutEvt, 1);
+}
+
+bool CKitchen::onTouchBegan(Touch *touch, Event *unused_event)
+{
+    switch (m_eKitchenState)
+    {
+        case KS_GET:
+        {
+            m_pFridge->touchBegin(touch);
+            getSceneTouchBegin(touch);
+            break;
+        }
+        case KS_MAKE:
+        {
+            makeSceneTouchBegin(touch);
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+    return true;
+}
+
+void CKitchen::onTouchMoved(Touch *touch, Event *unused_event)
+{
+    switch (m_eKitchenState)
+    {
+        case KS_GET:
+        {
+            m_pFridge->touchMove(touch);
+            getSceneTouchMove(touch);
+            break;
+        }
+        case KS_MAKE:
+        {
+            makeSceneTouchMove(touch);
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+}
+
+void CKitchen::onTouchEnded(Touch *touch, Event *unused_event)
+{
+    switch (m_eKitchenState)
+    {
+        case KS_GET:
+        {
+            m_pFridge->touchEnd(touch);
+            getSceneTouchEnd(touch);
+            break;
+        }
+        case KS_MAKE:
+        {
+            makeSceneTouchEnd(touch);
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+}
+
+void CKitchen::onTouchCancelled(Touch *touch, Event *unused_event)
+{
+    switch (m_eKitchenState)
+    {
+        case KS_GET:
+        {
+            m_pFridge->touchCancel(touch);
+            getSceneTouchCancel(touch);
+            break;
+        }
+        case KS_MAKE:
+        {
+            makeSceneTouchCancel(touch);
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }
+}
+
+void CKitchen::myUpdate(float fEscapeTime)
+{
+
+}
+
+void CKitchen::menuHomeCallback(Ref* pSender)
+{
+    if (m_bBtnClicked) return;
+    m_bBtnClicked = true;
+}
+
+void CKitchen::menuNextCallback(Ref* pSender)
+{
+    if (m_bBtnClicked) return;
+    m_bBtnClicked = true;
+    m_eKitchenState = KS_NONE;
+    m_nTouchedPanziFood = -1;
+    m_bPanziFoodTouched = false;
+    Size visibleSize = Director::getInstance()->getVisibleSize();
+    float fX = KITCHEN_WIDTH - visibleSize.width;
+    if (m_pSceneLayer->getPosition().x >= -10)
+    {
+        CGlobalData::getSingleton()->setSceneConvert(SC_GET2MAKE);
+        m_pSceneLayer->runAction(Sequence::create(MoveTo::create(0.5f, Vec2(-fX, 0)),
+                                                  //MoveBy::create(0.5f, Vec2(300, 0)),
+                                                  //MoveTo::create(0.5f, Vec2(-fX, 0)),
+                                                  CallFunc::create([this](){ m_bBtnClicked = false; m_eKitchenState = KS_MAKE; }),
+                                                  NULL));
+    }
+    else
+    {
+        m_pSceneLayer->runAction(Sequence::create(MoveTo::create(0.5f, Vec2(0, 0)),
+                                                  //MoveBy::create(0.5f, Vec2(-300, 0)),
+                                                  //MoveTo::create(0.5f, Vec2(0, 0)),
+                                                  CallFunc::create([this](){ m_bBtnClicked = false; m_eKitchenState = KS_GET; }),
+                                                  NULL));
+    }
+}
+
+void CKitchen::flyOut(int nIndex)
+{
+    if (nIndex >= PANZI_COUNT) return;
+    CFoodMaterial* pFood = (CFoodMaterial*)m_aPanziFoods[nIndex];
+    if (pFood != NULL)
+    {
+        CGlobalData::getSingleton()->setPanziFood(nIndex, NULL);
+        Vec2 v2Start = pFood->getPosition();
+        float fDirect = (nIndex == 0 || nIndex == 3) ? -1 : 1;
+        Vec2 v2End = v2Start + Vec2(fDirect * 700, -500);
+        
+        ccBezierConfig config;
+        config.controlPoint_1 = v2Start;
+        config.controlPoint_2 = v2Start + (v2End - v2Start) * 0.5f + Vec2(0, 500);
+        config.endPosition = v2End;
+        pFood->runAction(Sequence::create(BezierTo::create(0.6f, config),
+                                          CallFunc::create([pFood](){
+            pFood->removeFromParent();
+        }), NULL));
+    }
+}
+
+void CKitchen::putFoodIntoPanzi(int nIndex)
+{
+    if (nIndex >= PANZI_COUNT) return;
+    MATERIAL_ID id = m_pTouchedFood->getMaterialId();
+    if (id >= MI_MAX) return;
+    std::string sName = MATERIAL_CONFIG[id].sName;
+    CFoodMaterial* pFood = CFoodMaterial::create(sName.c_str());
+    if (pFood != NULL)
+    {
+        m_pSceneLayer->addChild(pFood, PANZI_ZORDER[nIndex] + 1);
+        Vec2 v2Pos = m_aPanzi[nIndex]->getPosition() + Vec2(0, 50);
+        pFood->setPosition(v2Pos);
+        pFood->setVisible(false);
+        std::vector<int> vMaterials;
+        vMaterials.clear();
+        vMaterials.push_back(m_pTouchedFood->getMaterialId());
+        int aTastes[2] = {0, 0};
+        pFood->initProperty(FT_ORIGIN, vMaterials, aTastes, nIndex);
+        
+        CGlobalData::getSingleton()->setPanziFood(nIndex, pFood);
+        m_aPanziFoods[nIndex] = pFood;
+        
+        m_aPanzi[nIndex]->setHasFood(true); //todo: 是否在这
+        
+        if (m_pTouchedFood!= NULL)
+        {
+            float fSpeed = FOOD_FLY_SPEED;
+            float fTime = m_pTouchedFood->getPosition().distance(v2Pos) / fSpeed;
+            m_pTouchedFood->runAction(Sequence::create(MoveTo::create(fTime, v2Pos),
+                                                       CallFunc::create([this, pFood](){
+                m_pTouchedFood->removeFromParent();
+                m_pTouchedFood = NULL;
+                pFood->setVisible(true);
+            }), NULL));
+        }
+    }
+}
+
+void CKitchen::getSceneTouchBegin(Touch* pTouch)
+{
+    m_v2LastDelta = Vec2::ZERO;
+    
+    //todo: 如果出现拖动食材出冰箱的同时 点击盘子中的食材怎么办
+    Vec2 v2Touch = m_pSceneLayer->convertTouchToNodeSpace(pTouch);
+    CFood* pFood = NULL;
+    for (int i = 0; i < PANZI_COUNT; i++)
+    {
+        pFood = m_aPanziFoods[i];
+        if (pFood != NULL && pFood->getFoodType() == FT_ORIGIN)
+        {
+            CFoodMaterial* pFoodMaterial = (CFoodMaterial*)pFood;
+            if (pFoodMaterial->getBoundingBox().containsPoint(v2Touch))
+            {
+                m_bPanziFoodTouched = true;
+                m_pTouchedPanziFood = pFoodMaterial;
+                m_pTouchedPanziFood->setLocalZOrder(EKZ_FRONT);
+                m_nTouchedPanziFood = i;
+            }
+        }
+    }
+}
+
+void CKitchen::getSceneTouchMove(Touch* pTouch)
+{
+    if (m_bPanziFoodTouched)
+    {
+        m_pTouchedPanziFood->setPosition(m_pSceneLayer->convertTouchToNodeSpace(pTouch));
+        m_v2LastDelta = pTouch->getDelta();
+    }
+}
+
+void CKitchen::getSceneTouchEnd(Touch* pTouch)
+{
+    if (m_bPanziFoodTouched)
+    {
+        m_bPanziFoodTouched = false;
+        if (m_v2LastDelta.length() > 200)
+        {
+            if (m_nTouchedPanziFood >= 0 && m_nTouchedPanziFood < PANZI_COUNT)
+            {
+                CGlobalData::getSingleton()->setPanziFood(m_nTouchedPanziFood, NULL);
+                m_aPanziFoods[m_nTouchedPanziFood] = NULL;
+                m_aPanzi[m_nTouchedPanziFood]->setHasFood(false);
+                m_nTouchedPanziFood = -1;
+            }
+            CFoodMaterial* pFood = m_pTouchedPanziFood;
+            m_pTouchedPanziFood = NULL;
+            pFood->runAction(Sequence::create(MoveBy::create(0.8f, m_v2LastDelta * 800),
+                                              CallFunc::create([pFood](){ pFood->removeFromParent(); }), NULL));
+        }
+        else
+        {
+            if (m_nTouchedPanziFood >= 0 && m_nTouchedPanziFood < PANZI_COUNT)
+            {
+                Vec2 v2Dest = m_aPanzi[m_nTouchedPanziFood]->getPosition() + Vec2(0, 50);
+                float fTime = v2Dest.distance(m_pTouchedPanziFood->getPosition()) / FOOD_FLY_SPEED;
+                m_pTouchedPanziFood->runAction(Sequence::create(MoveTo::create(fTime, v2Dest),
+                                                                CallFunc::create([this](){
+                    m_pTouchedPanziFood->setLocalZOrder(PANZI_ZORDER[m_nTouchedPanziFood] + 1);
+                    m_pTouchedPanziFood = NULL;
+                    m_nTouchedPanziFood = -1;
+                }), NULL));
+            }
+            else
+            {
+                m_pTouchedPanziFood->removeFromParent();
+                m_pTouchedPanziFood = NULL;
+                m_nTouchedPanziFood = -1;
+            }
+        }
+    }
+}
+
+void CKitchen::getSceneTouchCancel(Touch* pTouch)
+{
+    if (m_bPanziFoodTouched)
+    {
+        m_bPanziFoodTouched = false;
+        
+        if (m_nTouchedPanziFood >= 0 && m_nTouchedPanziFood < PANZI_COUNT)
+        {
+            Vec2 v2Dest = m_aPanzi[m_nTouchedPanziFood]->getPosition() + Vec2(0, 50);
+            float fTime = v2Dest.distance(m_pTouchedPanziFood->getPosition()) / FOOD_FLY_SPEED;
+            m_pTouchedPanziFood->runAction(Sequence::create(MoveTo::create(fTime, v2Dest),
+                                                            CallFunc::create([this](){
+                m_pTouchedPanziFood->setLocalZOrder(PANZI_ZORDER[m_nTouchedPanziFood] + 1);
+                m_pTouchedPanziFood = NULL;
+                m_nTouchedPanziFood = -1;
+            }), NULL));
+        }
+        else
+        {
+            m_pTouchedPanziFood->removeFromParent();
+            m_pTouchedPanziFood = NULL;
+            m_nTouchedPanziFood = -1;
+        }
+    }
+}
+
+void CKitchen::makeSceneTouchBegin(Touch* pTouch)
+{
+    Vec2 v2Touch = m_pSceneLayer->convertTouchToNodeSpace(pTouch);
+    for (int i = 0; i < PANZI_COUNT; i++)
+    {
+        if (m_aPanzi[i] != NULL && m_aPanzi[i]->getHasFood())
+        {
+            if (m_aPanzi[i]->getBoundingBox().containsPoint(v2Touch))   //先以盘子的范围判断
+            {
+                m_pCurTouchedFood = m_aPanziFoods[i];
+                m_nTouchedPanziFood = i;
+                m_bPanziFoodTouched = true;
+                m_aPanzi[i]->setHasFood(false);
+                break;
+            }
+        }
+    }
+}
+
+void CKitchen::makeSceneTouchMove(Touch* pTouch)
+{
+    if (m_bPanziFoodTouched)
+    {
+        m_pCurTouchedFood->setPosition(m_pSceneLayer->convertTouchToNodeSpace(pTouch));
+        
+        
+    }
+}
+
+void CKitchen::makeSceneTouchEnd(Touch* pTouch)
+{
+    if (m_bPanziFoodTouched)
+    {
+        //todo: 还要判断食物可不可以用对应的工具加工
+        if (isWithinTools(m_pSceneLayer->convertTouchToNodeSpace(pTouch)))
+        {
+            if (m_nTouchedPanziFood >= 0 && m_nTouchedPanziFood < PANZI_COUNT)
+            {
+                m_aPanzi[m_nTouchedPanziFood]->setHasFood(true);
+                m_pCurTouchedFood = NULL;
+                m_bPanziFoodTouched = false;
+                m_nTouchedPanziFood = -1;
+            }
+        }
+        else
+        {
+            if (m_nTouchedPanziFood >= 0 && m_nTouchedPanziFood < PANZI_COUNT)
+            {
+                Vec2 v2Dest = m_aPanzi[m_nTouchedPanziFood]->getPosition() + Vec2(0, 50);
+                Vec2 V2Now = m_pSceneLayer->convertTouchToNodeSpace(pTouch);
+                float fTime = V2Now.distance(v2Dest) / FOOD_FLY_SPEED;
+                m_pCurTouchedFood->runAction(Sequence::create(MoveTo::create(fTime, v2Dest),
+                                                              CallFunc::create([this](){
+                    if (m_nTouchedPanziFood >= 0 && m_nTouchedPanziFood < PANZI_COUNT)
+                    {
+                        m_aPanzi[m_nTouchedPanziFood]->setHasFood(true);
+                        m_pCurTouchedFood = NULL;
+                        m_bPanziFoodTouched = false;
+                        m_nTouchedPanziFood = -1;
+                    }
+                }), NULL));
+            }
+        }
+        
+    }
+    else
+    {
+        checkToolsClicked(pTouch);
+    }
+}
+
+void CKitchen::checkToolsClicked(Touch* pTouch)
+{
+    Vec2 v2Touch = m_pSceneLayer->convertTouchToNodeSpace(pTouch);
+    for (int i = 0; i < sizeof(m_aTools) / sizeof(Sprite*); i++)
+    {
+        if (m_aTools[i]->getBoundingBox().containsPoint(v2Touch))
+        {
+            if (m_bBtnClicked) return;
+            m_bBtnClicked = true;
+            
+            if (i == 0)
+            {
+                Scene* pScene = CCutScene::createScene();
+                if (pScene != NULL)
+                {
+                    Director::getInstance()->replaceScene(pScene);
+                }
+            }
+            else if (i == 2)
+            {
+                Scene* pScene = CJuicingScene::createScene();
+                if (pScene != NULL)
+                {
+                    Director::getInstance()->replaceScene(pScene);
+                }
+            }
+            break;
+        }
+    }
+    
+}
+
+void CKitchen::makeSceneTouchCancel(Touch* pTouch)
+{
+    //todo: 写逻辑
+    if (m_bPanziFoodTouched)
+    {
+        
+    }
+}
+
+bool CKitchen::isWithinTools(Vec2 v2Pos)
+{
+    bool bRet = false;
+    for (int i = 0; i < 5; i++)
+    {
+        if (m_aTools[i]->getBoundingBox().containsPoint(v2Pos))
+        {
+            bRet = true;
+            break;
+        }
+    }
+    return bRet;
+}

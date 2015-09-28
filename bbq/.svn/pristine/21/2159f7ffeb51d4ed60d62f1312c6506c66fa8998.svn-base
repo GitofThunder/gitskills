@@ -1,0 +1,161 @@
+//
+//  BBQChoosingRole.cpp
+//  TravelDemo
+//
+//  Created by kids on 15/9/7.
+//
+//
+
+#include "BBQChoosingRole.h"
+#include "EatingRoleData.h"
+
+BBQChoosingRole::BBQChoosingRole():
+m_armature(nullptr),
+m_headRect(Rect::ZERO),
+m_roleID(-1)
+{
+    
+}
+
+BBQChoosingRole* BBQChoosingRole::create(int RoleID)
+{
+    BBQChoosingRole* pRet = new(std::nothrow) BBQChoosingRole();
+    if (pRet && pRet->init(RoleID)) {
+        pRet->autorelease();
+        return pRet;
+    }
+    else
+    {
+        delete pRet;
+        pRet = nullptr;
+        return nullptr;
+    }
+}
+
+
+bool BBQChoosingRole::init(int RoleID)
+{
+    if (!Node::init()) {
+        return false;
+    }
+    
+    m_roleID = RoleID;
+    
+    //这里在创建角色的时候应该根据roleID来进行
+    m_armature = DBCCFactory::getInstance()->buildArmatureNode(EATING_ROLE_MEMBERS_NAMES[RoleID]);
+    m_armature->getAnimation()->gotoAndPlay("Stand");
+    this->addChild(m_armature);
+    
+    
+    m_armature->getAnimation()->advanceTime(0);
+    auto armatureBox = m_armature->getBoundingBox().size;
+    
+    if (RoleID == Guest03) {
+        this->setContentSize(Size(armatureBox.width - 220, armatureBox.height));
+        this->setAnchorPoint(Vec2(0.5, 0.5));
+        m_armature->setPosition(this->getBoundingBox().size.width/2, this->getBoundingBox().size.height - 505);
+        
+        auto _layer = LayerColor::create(Color4B(255, 0, 0, 255));
+        //this->addChild(_layer);
+        _layer->setContentSize(this->getContentSize());
+        _layer->setZOrder(-1);
+        
+        auto _headheight = 400;
+        m_headRect = Rect(0, this->getBoundingBox().size.height - _headheight, this->getBoundingBox().size.width, _headheight);
+        _layer_head = LayerColor::create(Color4B(0, 255, 0, 255));
+        //this->addChild(_layer_head);
+        _layer_head->setContentSize(Size(this->getBoundingBox().size.width, _headheight));
+        _layer_head->setZOrder(-1);
+        _layer_head->setPositionY(this->getBoundingBox().size.height - _headheight);
+    }
+    else
+    {
+        this->setContentSize(Size(armatureBox.width - 20, armatureBox.height));
+        this->setAnchorPoint(Vec2(0.5, 0.5));
+        m_armature->setPosition(this->getBoundingBox().size.width/2, this->getBoundingBox().size.height - 505);
+        
+        if (RoleID == Guest10) {
+            m_armature->setPosition(this->getBoundingBox().size.width/2, this->getBoundingBox().size.height - 655);
+        }
+        else if (RoleID == Guest08)
+        {
+            m_armature->setPosition(this->getBoundingBox().size.width/2, this->getBoundingBox().size.height - 415);
+        }
+        else if (RoleID == Guest09)
+        {
+            m_armature->setPosition(this->getBoundingBox().size.width/2, this->getBoundingBox().size.height - 550);
+        }
+        else if (RoleID == Guest02)
+        {
+            m_armature->setPosition(this->getBoundingBox().size.width/2, this->getBoundingBox().size.height - 560);
+        }
+        else if (RoleID == Guest06)
+        {
+            m_armature->setPosition(this->getBoundingBox().size.width/2, this->getBoundingBox().size.height - 480);
+        }
+        
+        auto _layer = LayerColor::create(Color4B(255, 0, 0, 255));
+        //this->addChild(_layer);
+        _layer->setContentSize(this->getContentSize());
+        _layer->setZOrder(-1);
+        
+        auto _headheight = 400;
+        m_headRect = Rect(0, this->getBoundingBox().size.height - _headheight, this->getBoundingBox().size.width, _headheight);
+        _layer_head = LayerColor::create(Color4B(0, 255, 0, 255));
+        //this->addChild(_layer_head);
+        _layer_head->setContentSize(Size(this->getBoundingBox().size.width, _headheight));
+        _layer_head->setZOrder(-1);
+        _layer_head->setPositionY(this->getBoundingBox().size.height - _headheight);
+        
+    }
+    
+    
+    
+    m_armature->getCCEventDispatcher()->addCustomEventListener(EventData::COMPLETE, CC_CALLBACK_1(BBQChoosingRole::eventHandler, this));
+    
+    return true;
+}
+
+
+bool BBQChoosingRole::isTouchHead(cocos2d::Touch* touch)
+{
+    auto _pos = this->convertToNodeSpace(touch->getLocation());
+    return m_headRect.containsPoint(_pos);
+}
+
+
+void BBQChoosingRole::playAnimation(std::string animation)
+{
+    m_armature->getAnimation()->gotoAndPlay(animation);
+}
+
+
+
+void BBQChoosingRole::eventHandler(EventCustom* event)
+{
+    EventData* eventData = static_cast<EventData*>(event->getUserData());
+    
+    switch (eventData->getType()) {
+        case EventData::EventType::COMPLETE:
+        {
+            //如果动画循环播放完毕有相应的事要做，在这里处理
+            if (strcmp(eventData->animationState->name.c_str(), "Sit") == 0) {
+                m_armature->getAnimation()->gotoAndPlay("Default");
+            }
+            break;
+        }
+        case EventData::EventType::LOOP_COMPLETE:
+        {
+            break;
+        }
+            
+        default:
+            break;
+    }
+}
+
+
+int BBQChoosingRole::getRoleID()
+{
+    return m_roleID;
+}
