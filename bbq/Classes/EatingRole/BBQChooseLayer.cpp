@@ -747,8 +747,8 @@ void BBQChooseLayer::ChangeLayer()
     }
     
     if (m_pos_label_index.size()) {
-        auto scene = CKitchen::createScene();
-        //auto scene = CEatingTest::createScene();
+        //auto scene = CKitchen::createScene();
+        auto scene = CEatingTest::createScene();
         Director::getInstance()->replaceScene(scene);
     }
 }

@@ -48,6 +48,8 @@ const std::string EATING_ROLE_EYES_NAMES[EATING_ROLE_INDEX::MAX_ROLE_NUM * 2] =
     "",
     "G10_eyeball",
     "G10_eyeball_0",
+    "G12_eye",
+    "",
 };
 
 
@@ -63,6 +65,7 @@ const int EATING_ROLE_ARMATURE_BETWEEN_NUM[EATING_ROLE_INDEX::MAX_ROLE_NUM] =
     4,  //08
     6,  //09
     4,  //10
+    3,  //12
 };
 
 //用于加载人物信息的时候使用。
